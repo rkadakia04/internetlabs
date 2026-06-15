@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "WebSearch",
+      "Bash(curl -sL -o akira.gif \"https://media.giphy.com/media/l2JhFQCtKePKadhTO/giphy.gif\")",
+      "Bash(curl -sL -o akira.gif \"https://media.giphy.com/media/3oz8xQMB0BVyW15b8Y/giphy.gif\")",
+      "Bash(curl -sL -o akira.gif \"https://i.pinimg.com/originals/a1/dc/aa/a1dcaabc89970f8a2b6adeaa13283c10.gif\")",
+      "Bash(git --version)",
+      "Bash(echo \"git: $\\(git --version || echo MISSING\\)\")",
+      "Bash(gh --version)",
+      "Bash(echo \"gh: $\\(gh --version)"
+    ]
+  }
+}
