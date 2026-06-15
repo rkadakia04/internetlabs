@@ -36,7 +36,8 @@
       "Bash(git -c user.name='rkadakia04' -c user.email='rkadakia04@gmail.com' commit -qm \"Re-add custom domain internetlabs.co\")",
       "Read(//Users/yyz/Downloads/**)",
       "Bash(cp ~/Downloads/PDF.png /Users/yyz/Desktop/internet/pdf.png && ls -la /Users/yyz/Desktop/internet/pdf.png && echo \"copied\")",
-      "Bash(git -c user.name='rkadakia04' -c user.email='rkadakia04@gmail.com' commit -qm \"Add PDF icon and update caption to '100 things we love.pdf'\")"
+      "Bash(git -c user.name='rkadakia04' -c user.email='rkadakia04@gmail.com' commit -qm \"Add PDF icon and update caption to '100 things we love.pdf'\")",
+      "Bash(git -c user.name='rkadakia04' -c user.email='rkadakia04@gmail.com' commit -qm \"Lowercase title, rename caption to '21 things we like.pdf'\")"
     ]
   }
 }
