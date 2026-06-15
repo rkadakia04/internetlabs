@@ -46,7 +46,15 @@
       "Bash(ffprobe -v error -select_streams v:0 -show_entries stream=width,height,r_frame_rate,duration,nb_frames -show_entries format=duration -of default=noprint_wrappers=1 \"/Users/yyz/Downloads/GIF ASSETS/3.mp4\")",
       "Bash(awk '{print \"akira.gif \"$5\" bytes\"}')",
       "Bash(git -c user.name='rkadakia04' -c user.email='rkadakia04@gmail.com' commit -qm \"Replace gif with converted video, underline pdf caption\")",
-      "Bash(git -c user.name='rkadakia04' -c user.email='rkadakia04@gmail.com' commit -qm \"Smaller logo, tighter spacing, no bullets, gif bottom-left, remove divider\")"
+      "Bash(git -c user.name='rkadakia04' -c user.email='rkadakia04@gmail.com' commit -qm \"Smaller logo, tighter spacing, no bullets, gif bottom-left, remove divider\")",
+      "mcp__2e8f8bd9-9346-4091-99d2-d984a0680742__get_screenshot",
+      "Read(//private/tmp/**)",
+      "Bash(curl -s -o figma_og.png \"https://www.figma.com/api/mcp/asset/da01340d-4daf-4565-b129-8cea63a3f9f8\")",
+      "Bash(sips -g pixelWidth -g pixelHeight figma_og.png)",
+      "Bash(curl -s -o og.png \"https://www.figma.com/api/mcp/asset/5db6d302-9c68-4fb5-89d6-9f64f7651d2a\")",
+      "Bash(sips -g pixelWidth -g pixelHeight og.png)",
+      "Bash(ffmpeg -y -v error -i og.png -vf \"scale=1200:630:force_original_aspect_ratio=decrease,pad=1200:630:\\(ow-iw\\)/2:\\(oh-ih\\)/2:color=white\" og_1200.png)",
+      "Bash(git -c user.name='rkadakia04' -c user.email='rkadakia04@gmail.com' commit -qm \"Add social share image, hover shadow, equal product spacing, asterisk discontinued\")"
     ]
   }
 }

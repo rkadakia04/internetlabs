@@ -4,6 +4,18 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Internet</title>
+<meta name="description" content="Internet is a company that builds viral, beautiful consumer products and software.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://internetlabs.co/">
+<meta property="og:title" content="Internet">
+<meta property="og:description" content="Internet is a company that builds viral, beautiful consumer products and software.">
+<meta property="og:image" content="https://internetlabs.co/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Internet">
+<meta name="twitter:description" content="Internet is a company that builds viral, beautiful consumer products and software.">
+<meta name="twitter:image" content="https://internetlabs.co/og.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400..700&display=swap" rel="stylesheet">
@@ -61,6 +73,13 @@
     width: 210px;
     height: auto;
     image-rendering: pixelated;
+    transform-origin: bottom left;
+    transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.4s ease;
+    will-change: transform;
+  }
+  .akira:hover > img {
+    transform: scale(1.035);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
   }
   .akira figcaption {
     margin-top: 8px;
@@ -76,7 +95,7 @@
     vertical-align: -7px;
     margin-right: 6px;
   }
-  .hiring { margin-top: 52px; }
+  .hiring { margin-top: 26px; }
   .copyright {
     margin-top: 40px;
     font-size: 12px;
@@ -104,7 +123,7 @@
   <ul>
     <li>⛳ <a href="https://imessagegolf.com" target="_blank" rel="noopener">golf</a> — minigolf in iMessage</li>
     <li>🌱 <a href="https://apps.apple.com/us/app/plant-self-care/id6760047919" target="_blank" rel="noopener">plant</a> — gamified self care</li>
-    <li>🍄 <a href="#" target="_blank" rel="noopener">bodega</a> — gummies for brain fog <em>(discontinued)</em></li>
+    <li>🍄 <a href="#" target="_blank" rel="noopener">bodega</a> — gummies for brain fog *discontinued*</li>
   </ul>
 
   <p class="hiring">We're hiring a design engineer and an iOS developer. NYC based.</p>
