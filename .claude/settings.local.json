@@ -8,7 +8,29 @@
       "Bash(git --version)",
       "Bash(echo \"git: $\\(git --version || echo MISSING\\)\")",
       "Bash(gh --version)",
-      "Bash(echo \"gh: $\\(gh --version)"
+      "Bash(echo \"gh: $\\(gh --version)",
+      "Bash(gh repo *)",
+      "Bash(gh api *)",
+      "Bash(dig +short internetlabs.co A)",
+      "Bash(dig +short www.internetlabs.co)",
+      "Bash(dig +short @8.8.8.8 internetlabs.co A)",
+      "Bash(dig +short @8.8.8.8 www.internetlabs.co CNAME)",
+      "Bash(dig +short @1.1.1.1 www.internetlabs.co)",
+      "Bash(curl -sI http://internetlabs.co --max-time 15)",
+      "Bash(curl -sI https://internetlabs.co --max-time 15)",
+      "Bash(curl -sI https://internetlabs.co --max-time 12)",
+      "Bash(echo \"exit=$?\")",
+      "Bash(python3 -c \"import sys,json; d=json.load\\(sys.stdin\\); print\\('https_enforced:',d.get\\('https_enforced'\\)\\); print\\('cname:',d.get\\('cname'\\)\\); print\\('status:',d.get\\('status'\\)\\); print\\('protected_domain_state:',d.get\\('protected_domain_state'\\)\\)\")",
+      "Bash(dig +short internetlabs.co CAA)",
+      "Bash(dig +short @8.8.8.8 internetlabs.co CAA)",
+      "Bash(curl -sI -o /dev/null -w \"%{http_code}\\\\n\" http://internetlabs.co --max-time 10)",
+      "Bash(curl -sv https://internetlabs.co --max-time 8)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\\\\n\" https://internetlabs.co --max-time 12)",
+      "Bash(openssl s_client -connect internetlabs.co:443 -servername internetlabs.co)",
+      "Bash(openssl x509 *)",
+      "Bash(git add *)",
+      "Bash(git -c user.name='rkadakia04' -c user.email='rkadakia04@gmail.com' commit -qm \"Fix mobile: gif flows in-document instead of overlapping content\")",
+      "Bash(git push *)"
     ]
   }
 }

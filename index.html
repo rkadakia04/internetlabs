@@ -44,7 +44,7 @@
     padding-left: 30px;
     margin: 0;
   }
-  li { margin-bottom: 18px; }
+  li { margin-bottom: 10px; }
   a { color: #1a52e0; text-decoration: none; }
   a:hover { text-decoration: underline; }
   .intro { max-width: 360px; }
@@ -78,20 +78,13 @@
   }
   @media (max-width: 1024px) {
     .akira {
-      top: auto;
-      right: auto;
-      bottom: 24px;
-      left: 24px;
+      position: static;
+      margin-top: 64px;
     }
   }
 </style>
 </head>
 <body>
-
-  <figure class="akira">
-    <img src="akira.gif?v=3" alt="Akira" />
-    <figcaption><a href="#" target="_blank" rel="noopener">100 things we like, Internet.pdf</a></figcaption>
-  </figure>
 
   <h1>Internet</h1>
 
@@ -109,9 +102,16 @@
     <li>🍄 <a href="#" target="_blank" rel="noopener">bodega</a> — gummies for brain fog <em>(discontinued)</em></li>
   </ul>
 
-  <p class="hiring">We're hiring a <a href="#" target="_blank" rel="noopener">design engineer</a> and an <a href="#" target="_blank" rel="noopener">iOS developer</a>. NYC based.</p>
+  <p class="hiring">We're hiring a design engineer and an iOS developer. NYC based.</p>
+
+  <p>For all inquiries, please email <a href="mailto:hi@internetlabs.co">hi@internetlabs.co</a>.</p>
 
   <p class="copyright">© 2026 Internet Labs</p>
+
+  <figure class="akira">
+    <img src="akira.gif?v=3" alt="Akira" />
+    <figcaption><a href="#" target="_blank" rel="noopener">100 things we like, Internet.pdf</a></figcaption>
+  </figure>
 
 </body>
 </html>
