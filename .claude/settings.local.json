@@ -45,7 +45,8 @@
       "Bash(brew install *)",
       "Bash(ffprobe -v error -select_streams v:0 -show_entries stream=width,height,r_frame_rate,duration,nb_frames -show_entries format=duration -of default=noprint_wrappers=1 \"/Users/yyz/Downloads/GIF ASSETS/3.mp4\")",
       "Bash(awk '{print \"akira.gif \"$5\" bytes\"}')",
-      "Bash(git -c user.name='rkadakia04' -c user.email='rkadakia04@gmail.com' commit -qm \"Replace gif with converted video, underline pdf caption\")"
+      "Bash(git -c user.name='rkadakia04' -c user.email='rkadakia04@gmail.com' commit -qm \"Replace gif with converted video, underline pdf caption\")",
+      "Bash(git -c user.name='rkadakia04' -c user.email='rkadakia04@gmail.com' commit -qm \"Smaller logo, tighter spacing, no bullets, gif bottom-left, remove divider\")"
     ]
   }
 }
