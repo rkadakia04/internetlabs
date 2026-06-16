@@ -58,7 +58,8 @@
       "Bash(git -c user.name='rkadakia04' -c user.email='rkadakia04@gmail.com' commit -qm \"Add typewriter intro animation, tighten product spacing, simplify contact line\")",
       "Bash(git -c user.name='rkadakia04' -c user.email='rkadakia04@gmail.com' commit -qm \"Remove Products heading, update hiring line copy\")",
       "Bash(git -c user.name='rkadakia04' -c user.email='rkadakia04@gmail.com' commit -qm \"Update hiring line: NYC based requirement\")",
-      "Bash(git -c user.name='rkadakia04' -c user.email='rkadakia04@gmail.com' commit -qm \"Bigger gif, smaller logo, hover blur+dim focus, clickable gif, copyright under pdf\")"
+      "Bash(git -c user.name='rkadakia04' -c user.email='rkadakia04@gmail.com' commit -qm \"Bigger gif, smaller logo, hover blur+dim focus, clickable gif, copyright under pdf\")",
+      "Bash(git -c user.name='rkadakia04' -c user.email='rkadakia04@gmail.com' commit -qm \"Trim intro to two paragraphs\")"
     ]
   }
 }
