@@ -55,7 +55,8 @@
       "Bash(sips -g pixelWidth -g pixelHeight og.png)",
       "Bash(ffmpeg -y -v error -i og.png -vf \"scale=1200:630:force_original_aspect_ratio=decrease,pad=1200:630:\\(ow-iw\\)/2:\\(oh-ih\\)/2:color=white\" og_1200.png)",
       "Bash(git -c user.name='rkadakia04' -c user.email='rkadakia04@gmail.com' commit -qm \"Add social share image, hover shadow, equal product spacing, asterisk discontinued\")",
-      "Bash(git -c user.name='rkadakia04' -c user.email='rkadakia04@gmail.com' commit -qm \"Add typewriter intro animation, tighten product spacing, simplify contact line\")"
+      "Bash(git -c user.name='rkadakia04' -c user.email='rkadakia04@gmail.com' commit -qm \"Add typewriter intro animation, tighten product spacing, simplify contact line\")",
+      "Bash(git -c user.name='rkadakia04' -c user.email='rkadakia04@gmail.com' commit -qm \"Remove Products heading, update hiring line copy\")"
     ]
   }
 }
