@@ -33,7 +33,9 @@
     background: #000;
     margin-left: 2px;
     vertical-align: -1px;
+    animation: blink 1.05s step-end infinite;
   }
+  @keyframes blink { 0%, 50% { opacity: 1; } 50.01%, 100% { opacity: 0; } }
   body {
     font-family: ui-monospace, "SF Mono", SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
     color: #666;
@@ -173,6 +175,7 @@
     position: relative; z-index: 1;
     width: min(1100px, 92vw);
   }
+  .reel-stage #reelVideo { box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25); }
   .reel-controls {
     display: flex; justify-content: space-between; align-items: center;
     margin-top: 10px; font-size: 13px; color: #666;
@@ -212,7 +215,7 @@
   <ul>
     <li>⛳ <a href="https://imessagegolf.com" target="_blank" rel="noopener">golf</a> — minigolf in iMessage</li>
     <li>🌱 <a href="https://apps.apple.com/us/app/plant-self-care/id6760047919" target="_blank" rel="noopener">plant</a> — gamified self care</li>
-    <li>🍄 <a href="#" target="_blank" rel="noopener">bodega</a> — brain fog gummies *inactive*</li>
+    <li>🍄 <a href="#" target="_blank" rel="noopener">bodega</a> — brain fog gummies *discontinued*</li>
   </ul>
 
   <div class="reel-thumb" id="reelThumb" role="button" tabindex="0" aria-label="Play reel">
@@ -255,10 +258,9 @@
     var restartBtn = document.getElementById('reelRestart');
     if (!thumb || !lb || !stage || !video) return;
 
-    var EASE = 'transform 0.55s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.55s ease';
+    var EASE = 'transform 0.55s cubic-bezier(0.22, 1, 0.36, 1)';
     var endHandler = null;
     var safety = null;
-    var startTimer = null;
     var fadeRAF = null;
     var unmuteTimer = null;
     var unmuteHandler = null;
@@ -294,7 +296,6 @@
     function clearHandlers() {
       if (endHandler) { video.removeEventListener('transitionend', endHandler); endHandler = null; }
       if (safety) { clearTimeout(safety); safety = null; }
-      if (startTimer) { clearTimeout(startTimer); startTimer = null; }
     }
     // transform that makes an element naturally at toRect appear at fromRect
     function deltaTransform(fromRect, toRect) {
@@ -320,12 +321,10 @@
       video.style.transform = 'none';
       var last = video.getBoundingClientRect();            // full, centered
       video.style.transform = deltaTransform(first, last); // appear back at the corner
-      video.style.boxShadow = '0 20px 60px rgba(0, 0, 0, 0)'; // shadow starts invisible
       void video.offsetWidth;
       requestAnimationFrame(function () {
         video.style.transition = EASE;
         video.style.transform = 'none';                    // grow to full
-        video.style.boxShadow = '0 20px 60px rgba(0, 0, 0, 0.25)'; // fade shadow in as it grows
         backdrop.classList.add('show');
       });
 
@@ -334,11 +333,12 @@
       video.volume = 1;
       muteBtn.textContent = 'Mute';
       if (video.currentTime > 0.05) {
-        // seek to the start while muted, then unmute once the seek lands
+        // seek to the start while muted, then unmute once the seek lands —
+        // avoids a blip of audio from the old loop position
         video.muted = true;
         unmuteHandler = function () { clearUnmute(); video.muted = false; };
         video.addEventListener('seeked', unmuteHandler);
-        unmuteTimer = setTimeout(unmuteHandler, 500);
+        unmuteTimer = setTimeout(unmuteHandler, 500); // fallback if 'seeked' never fires
         video.currentTime = 0;
       } else {
         video.muted = false;
@@ -360,7 +360,6 @@
     function close() {
       if (!lb.classList.contains('active')) return;
       clearHandlers();
-      clearUnmute();
       lb.classList.remove('controls-on');
       var first = video.getBoundingClientRect();           // full, centered
       var t = thumb.getBoundingClientRect();                // corner home (empty -> zero height)
@@ -368,12 +367,10 @@
       var target = { left: t.left, top: t.top, width: t.width, height: t.width * ratio };
       video.style.transition = 'none';
       video.style.transform = 'none';
-      video.style.opacity = '1';                            // ensure visible (in case mid start-fade)
       void video.offsetWidth;
       requestAnimationFrame(function () {
         video.style.transition = EASE;
         video.style.transform = deltaTransform(target, first); // shrink toward the corner
-        video.style.boxShadow = '0 20px 60px rgba(0, 0, 0, 0)'; // fade shadow out as it shrinks
         backdrop.classList.remove('show');
       });
       fadeVolume(video.volume, 0, 520);                      // fade the audio out as it collapses
@@ -385,7 +382,6 @@
         document.body.style.overflow = '';
         video.style.transition = 'none';
         video.style.transform = 'none';
-        video.style.boxShadow = '';                          // clear the inline player shadow
         thumb.appendChild(video);                            // re-home into the corner (no visual jump)
         thumb.style.height = '';                             // release the reserved space
         thumb.style.visibility = '';                         // show the corner again
@@ -491,15 +487,12 @@
           setTimeout(function () { reelThumb.style.opacity = ''; }, 600);
         }
 
-        var chain = sleep(2000); // hold on a blank page before the logo starts typing
+        var chain = Promise.resolve();
         blocks.forEach(function (b, i) {
           var speed = i === 0 ? LOGO_SPEED : SPEED;
           chain = chain.then(function () { return typeInto(originals[i], b, speed); });
           if (isMobile && reelThumb && b === reelThumb.previousElementSibling) {
-            chain = chain
-              .then(function () { caret.style.opacity = '0'; return sleep(650); }) // pause after products
-              .then(function () { revealReel(); return sleep(850); })              // video comes in, then hold
-              .then(function () { caret.style.opacity = ''; });                    // caret back as typing resumes
+            chain = chain.then(function () { revealReel(); });
           }
         });
         chain.then(function () {
