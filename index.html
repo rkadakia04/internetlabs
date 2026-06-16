@@ -33,9 +33,7 @@
     background: #000;
     margin-left: 2px;
     vertical-align: -1px;
-    animation: blink 1.05s step-end infinite;
   }
-  @keyframes blink { 0%, 50% { opacity: 1; } 50.01%, 100% { opacity: 0; } }
   body {
     font-family: ui-monospace, "SF Mono", SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
     color: #666;
@@ -261,6 +259,7 @@
     var EASE = 'transform 0.55s cubic-bezier(0.22, 1, 0.36, 1)';
     var endHandler = null;
     var safety = null;
+    var startTimer = null;
     var fadeRAF = null;
     var unmuteTimer = null;
     var unmuteHandler = null;
@@ -296,6 +295,7 @@
     function clearHandlers() {
       if (endHandler) { video.removeEventListener('transitionend', endHandler); endHandler = null; }
       if (safety) { clearTimeout(safety); safety = null; }
+      if (startTimer) { clearTimeout(startTimer); startTimer = null; }
     }
     // transform that makes an element naturally at toRect appear at fromRect
     function deltaTransform(fromRect, toRect) {
@@ -330,36 +330,47 @@
 
       if (fadeRAF) { cancelAnimationFrame(fadeRAF); fadeRAF = null; }
       clearUnmute();
+      // keep playing from the current position (muted) as it expands; the start is brought in once open
       video.volume = 1;
+      video.muted = true;
       muteBtn.textContent = 'Mute';
-      if (video.currentTime > 0.05) {
-        // seek to the start while muted, then unmute once the seek lands —
-        // avoids a blip of audio from the old loop position
-        video.muted = true;
-        unmuteHandler = function () { clearUnmute(); video.muted = false; };
-        video.addEventListener('seeked', unmuteHandler);
-        unmuteTimer = setTimeout(unmuteHandler, 500); // fallback if 'seeked' never fires
-        video.currentTime = 0;
-      } else {
-        video.muted = false;
-      }
       resume();
       lb.setAttribute('aria-hidden', 'false');
       document.body.style.overflow = 'hidden';
 
       endHandler = function (e) {
         if (e.target === video && e.propertyName === 'transform') {
-          lb.classList.add('controls-on');
           clearHandlers();
+          lb.classList.add('controls-on');
+          bringInStart();
         }
       };
       video.addEventListener('transitionend', endHandler);
-      safety = setTimeout(function () { lb.classList.add('controls-on'); clearHandlers(); }, 750);
+      safety = setTimeout(function () { clearHandlers(); lb.classList.add('controls-on'); bringInStart(); }, 750);
+    }
+
+    // once fully expanded: quick fade out, jump to the start, fade back in with sound
+    function bringInStart() {
+      clearUnmute();
+      if (startTimer) { clearTimeout(startTimer); startTimer = null; }
+      video.style.transition = 'opacity 0.16s ease';
+      video.style.opacity = '0';
+      startTimer = setTimeout(function () {
+        startTimer = null;
+        var onSeeked = function () { clearUnmute(); video.muted = false; };
+        unmuteHandler = onSeeked;
+        video.addEventListener('seeked', onSeeked);
+        unmuteTimer = setTimeout(onSeeked, 500);
+        video.currentTime = 0;
+        resume();
+        requestAnimationFrame(function () { video.style.opacity = '1'; });
+      }, 170);
     }
 
     function close() {
       if (!lb.classList.contains('active')) return;
       clearHandlers();
+      clearUnmute();
       lb.classList.remove('controls-on');
       var first = video.getBoundingClientRect();           // full, centered
       var t = thumb.getBoundingClientRect();                // corner home (empty -> zero height)
@@ -367,6 +378,7 @@
       var target = { left: t.left, top: t.top, width: t.width, height: t.width * ratio };
       video.style.transition = 'none';
       video.style.transform = 'none';
+      video.style.opacity = '1';                            // ensure visible (in case mid start-fade)
       void video.offsetWidth;
       requestAnimationFrame(function () {
         video.style.transition = EASE;
@@ -382,6 +394,7 @@
         document.body.style.overflow = '';
         video.style.transition = 'none';
         video.style.transform = 'none';
+        video.style.opacity = '';                            // clear any inline opacity from the start-fade
         thumb.appendChild(video);                            // re-home into the corner (no visual jump)
         thumb.style.height = '';                             // release the reserved space
         thumb.style.visibility = '';                         // show the corner again
@@ -487,7 +500,7 @@
           setTimeout(function () { reelThumb.style.opacity = ''; }, 600);
         }
 
-        var chain = Promise.resolve();
+        var chain = sleep(2000); // hold on a blank page before the logo starts typing
         blocks.forEach(function (b, i) {
           var speed = i === 0 ? LOGO_SPEED : SPEED;
           chain = chain.then(function () { return typeInto(originals[i], b, speed); });

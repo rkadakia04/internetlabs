@@ -75,7 +75,8 @@
       "Bash(git -c user.name='rkadakia04' -c user.email='rkadakia04@gmail.com' commit -qm \"Gate hover effects to hover-capable devices \\(fix mobile stuck-blur trap\\)\")",
       "Bash(git -c user.name='rkadakia04' -c user.email='rkadakia04@gmail.com' commit -qm \"Hide empty corner on expand \\(no ghost\\), reveal reel chronologically on mobile\")",
       "Bash(git -c user.name='rkadakia04' -c user.email='rkadakia04@gmail.com' commit -qm \"Remove post-logo caret hold, match mobile video width to gif\")",
-      "Bash(git -c user.name='rkadakia04' -c user.email='rkadakia04@gmail.com' commit -qm \"Remove idle caret pause before reel on mobile, more padding around video\")"
+      "Bash(git -c user.name='rkadakia04' -c user.email='rkadakia04@gmail.com' commit -qm \"Remove idle caret pause before reel on mobile, more padding around video\")",
+      "Bash(git -c user.name='rkadakia04' -c user.email='rkadakia04@gmail.com' commit -qm \"Solid caret \\(no blink\\), 2s blank intro, expand from current frame then fade to start\")"
     ]
   }
 }
