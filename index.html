@@ -173,7 +173,6 @@
     position: relative; z-index: 1;
     width: min(1100px, 92vw);
   }
-  .reel-stage #reelVideo { box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25); }
   .reel-controls {
     display: flex; justify-content: space-between; align-items: center;
     margin-top: 10px; font-size: 13px; color: #666;
@@ -213,7 +212,7 @@
   <ul>
     <li>⛳ <a href="https://imessagegolf.com" target="_blank" rel="noopener">golf</a> — minigolf in iMessage</li>
     <li>🌱 <a href="https://apps.apple.com/us/app/plant-self-care/id6760047919" target="_blank" rel="noopener">plant</a> — gamified self care</li>
-    <li>🍄 <a href="#" target="_blank" rel="noopener">bodega</a> — brain fog gummies *discontinued*</li>
+    <li>🍄 <a href="#" target="_blank" rel="noopener">bodega</a> — brain fog gummies *inactive*</li>
   </ul>
 
   <div class="reel-thumb" id="reelThumb" role="button" tabindex="0" aria-label="Play reel">
@@ -256,7 +255,7 @@
     var restartBtn = document.getElementById('reelRestart');
     if (!thumb || !lb || !stage || !video) return;
 
-    var EASE = 'transform 0.55s cubic-bezier(0.22, 1, 0.36, 1)';
+    var EASE = 'transform 0.55s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.55s ease';
     var endHandler = null;
     var safety = null;
     var startTimer = null;
@@ -321,50 +320,41 @@
       video.style.transform = 'none';
       var last = video.getBoundingClientRect();            // full, centered
       video.style.transform = deltaTransform(first, last); // appear back at the corner
+      video.style.boxShadow = '0 20px 60px rgba(0, 0, 0, 0)'; // shadow starts invisible
       void video.offsetWidth;
       requestAnimationFrame(function () {
         video.style.transition = EASE;
         video.style.transform = 'none';                    // grow to full
+        video.style.boxShadow = '0 20px 60px rgba(0, 0, 0, 0.25)'; // fade shadow in as it grows
         backdrop.classList.add('show');
       });
 
       if (fadeRAF) { cancelAnimationFrame(fadeRAF); fadeRAF = null; }
       clearUnmute();
-      // keep playing from the current position (muted) as it expands; the start is brought in once open
       video.volume = 1;
-      video.muted = true;
       muteBtn.textContent = 'Mute';
+      if (video.currentTime > 0.05) {
+        // seek to the start while muted, then unmute once the seek lands
+        video.muted = true;
+        unmuteHandler = function () { clearUnmute(); video.muted = false; };
+        video.addEventListener('seeked', unmuteHandler);
+        unmuteTimer = setTimeout(unmuteHandler, 500);
+        video.currentTime = 0;
+      } else {
+        video.muted = false;
+      }
       resume();
       lb.setAttribute('aria-hidden', 'false');
       document.body.style.overflow = 'hidden';
 
       endHandler = function (e) {
         if (e.target === video && e.propertyName === 'transform') {
-          clearHandlers();
           lb.classList.add('controls-on');
-          bringInStart();
+          clearHandlers();
         }
       };
       video.addEventListener('transitionend', endHandler);
-      safety = setTimeout(function () { clearHandlers(); lb.classList.add('controls-on'); bringInStart(); }, 750);
-    }
-
-    // once fully expanded: quick fade out, jump to the start, fade back in with sound
-    function bringInStart() {
-      clearUnmute();
-      if (startTimer) { clearTimeout(startTimer); startTimer = null; }
-      video.style.transition = 'opacity 0.16s ease';
-      video.style.opacity = '0';
-      startTimer = setTimeout(function () {
-        startTimer = null;
-        var onSeeked = function () { clearUnmute(); video.muted = false; };
-        unmuteHandler = onSeeked;
-        video.addEventListener('seeked', onSeeked);
-        unmuteTimer = setTimeout(onSeeked, 500);
-        video.currentTime = 0;
-        resume();
-        requestAnimationFrame(function () { video.style.opacity = '1'; });
-      }, 170);
+      safety = setTimeout(function () { lb.classList.add('controls-on'); clearHandlers(); }, 750);
     }
 
     function close() {
@@ -383,6 +373,7 @@
       requestAnimationFrame(function () {
         video.style.transition = EASE;
         video.style.transform = deltaTransform(target, first); // shrink toward the corner
+        video.style.boxShadow = '0 20px 60px rgba(0, 0, 0, 0)'; // fade shadow out as it shrinks
         backdrop.classList.remove('show');
       });
       fadeVolume(video.volume, 0, 520);                      // fade the audio out as it collapses
@@ -394,7 +385,7 @@
         document.body.style.overflow = '';
         video.style.transition = 'none';
         video.style.transform = 'none';
-        video.style.opacity = '';                            // clear any inline opacity from the start-fade
+        video.style.boxShadow = '';                          // clear the inline player shadow
         thumb.appendChild(video);                            // re-home into the corner (no visual jump)
         thumb.style.height = '';                             // release the reserved space
         thumb.style.visibility = '';                         // show the corner again
@@ -505,7 +496,10 @@
           var speed = i === 0 ? LOGO_SPEED : SPEED;
           chain = chain.then(function () { return typeInto(originals[i], b, speed); });
           if (isMobile && reelThumb && b === reelThumb.previousElementSibling) {
-            chain = chain.then(function () { revealReel(); });
+            chain = chain
+              .then(function () { caret.style.opacity = '0'; return sleep(650); }) // pause after products
+              .then(function () { revealReel(); return sleep(850); })              // video comes in, then hold
+              .then(function () { caret.style.opacity = ''; });                    // caret back as typing resumes
           }
         });
         chain.then(function () {
