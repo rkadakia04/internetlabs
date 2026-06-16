@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script>document.documentElement.classList.add('js-typing');</script>
 <title>Internet</title>
 <meta name="description" content="Internet is a company that builds viral, beautiful consumer products and software.">
 <meta property="og:type" content="website">
@@ -21,6 +22,17 @@
 <link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400..700&display=swap" rel="stylesheet">
 <style>
   html { -webkit-text-size-adjust: 100%; }
+  html.js-typing body { visibility: hidden; }
+  .caret {
+    display: inline-block;
+    width: 7px;
+    height: 1em;
+    background: #000;
+    margin-left: 2px;
+    vertical-align: -1px;
+    animation: blink 1.05s step-end infinite;
+  }
+  @keyframes blink { 0%, 50% { opacity: 1; } 50.01%, 100% { opacity: 0; } }
   body {
     font-family: "Times New Roman", Times, serif;
     color: #000;
@@ -56,7 +68,7 @@
     padding-left: 0;
     margin: 0;
   }
-  li { margin-bottom: 10px; }
+  li { margin-bottom: 7px; }
   a { color: #1a52e0; text-decoration: none; }
   a:hover { text-decoration: underline; }
   .intro { max-width: 360px; }
@@ -128,7 +140,7 @@
 
   <p class="hiring">We're hiring a design engineer and an iOS developer. NYC based.</p>
 
-  <p>For all inquiries, please email <a href="mailto:hi@internetlabs.co">hi@internetlabs.co</a>.</p>
+  <p>Contact: <a href="mailto:hi@internetlabs.co">hi@internetlabs.co</a></p>
 
   <p class="copyright">© 2026 Internet Labs</p>
 
@@ -136,6 +148,84 @@
     <img src="akira.gif?v=4" alt="Akira" />
     <figcaption><img class="pdficon" src="pdf.png" alt="PDF" /><a href="#" target="_blank" rel="noopener">21 things we like.pdf</a></figcaption>
   </figure>
+
+  <script>
+  (function () {
+    var html = document.documentElement;
+    function reveal() { html.classList.remove('js-typing'); }
+    var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reduce) { reveal(); return; }
+
+    function run() {
+      try {
+        var sleep = function (ms) { return new Promise(function (r) { setTimeout(r, ms); }); };
+        var caret = document.createElement('span');
+        caret.className = 'caret';
+        var SPEED = 15;
+        var LOGO_SPEED = 220;
+
+        var blocks = Array.prototype.filter.call(document.body.children, function (el) {
+          return el.tagName !== 'FIGURE' && el.tagName !== 'SCRIPT';
+        });
+        var figure = document.querySelector('.akira');
+
+        // snapshot original content, then empty each block
+        var originals = blocks.map(function (b) {
+          return Array.prototype.map.call(b.childNodes, function (n) { return n.cloneNode(true); });
+        });
+        blocks.forEach(function (b) { b.innerHTML = ''; });
+        if (figure) { figure.style.opacity = '0'; }
+        reveal(); // content is now empty — safe to show
+
+        function typeInto(srcNodes, target, speed) {
+          return srcNodes.reduce(function (p, child) {
+            return p.then(function () {
+              if (child.nodeType === 3) {
+                var chars = Array.from(child.textContent);
+                var tn = document.createTextNode('');
+                target.appendChild(tn);
+                target.appendChild(caret);
+                return chars.reduce(function (q, ch) {
+                  return q.then(function () {
+                    tn.textContent += ch;
+                    return sleep(ch === ' ' ? speed * 0.5 : speed);
+                  });
+                }, Promise.resolve());
+              } else if (child.nodeType === 1) {
+                var clone = child.cloneNode(false);
+                target.appendChild(clone);
+                target.appendChild(caret);
+                return typeInto(Array.prototype.slice.call(child.childNodes), clone, speed);
+              }
+              return Promise.resolve();
+            });
+          }, Promise.resolve());
+        }
+
+        var chain = Promise.resolve();
+        blocks.forEach(function (b, i) {
+          var speed = i === 0 ? LOGO_SPEED : SPEED;
+          chain = chain.then(function () { return typeInto(originals[i], b, speed); });
+        });
+        chain.then(function () {
+          if (caret.parentNode) { caret.parentNode.removeChild(caret); }
+          if (figure) {
+            figure.style.transition = 'opacity 1.8s ease';
+            figure.style.opacity = '1';
+          }
+        });
+      } catch (e) {
+        reveal();
+      }
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', run);
+    } else {
+      run();
+    }
+  })();
+  </script>
 
 </body>
 </html>
