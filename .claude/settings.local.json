@@ -68,7 +68,8 @@
       "Bash(git -c user.name='rkadakia04' -c user.email='rkadakia04@gmail.com' commit -qm \"Add reel: corner loop + smooth FLIP lightbox player, mono body, video assets\")",
       "Bash(git -c user.name='rkadakia04' -c user.email='rkadakia04@gmail.com' commit -qm \"Single-video reel with seamless FLIP, audio fade-out, default shadows, hover dim fixes, start-at-0\")",
       "Bash(git -c user.name='rkadakia04' -c user.email='rkadakia04@gmail.com' commit -qm \"Add blue folder favicon \\(png set\\)\")",
-      "Bash(git -c user.name='rkadakia04' -c user.email='rkadakia04@gmail.com' commit -qm \"Fix favicon: center folder on padded square so it isn't clipped\")"
+      "Bash(git -c user.name='rkadakia04' -c user.email='rkadakia04@gmail.com' commit -qm \"Fix favicon: center folder on padded square so it isn't clipped\")",
+      "Bash(git -c user.name='rkadakia04' -c user.email='rkadakia04@gmail.com' commit -qm \"Update hiring + contact copy, balance mobile video spacing\")"
     ]
   }
 }
