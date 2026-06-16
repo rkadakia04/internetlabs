@@ -34,14 +34,14 @@
   }
   @keyframes blink { 0%, 50% { opacity: 1; } 50.01%, 100% { opacity: 0; } }
   body {
-    font-family: "Times New Roman", Times, serif;
-    color: #000;
+    font-family: ui-monospace, "SF Mono", SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+    color: #666;
     background: #fff;
     max-width: 480px;
     margin: 0;
     padding: 24px;
-    font-size: 16px;
-    line-height: 1.55;
+    font-size: 13px;
+    line-height: 1.6;
     font-weight: normal;
     text-align: left;
     letter-spacing: -0.2px;
@@ -55,6 +55,7 @@
     margin: 0 0 20px;
     font-family: "Pixelify Sans", sans-serif;
     font-size: 22px;
+    color: #000;
   }
   h2 { margin: 0 0 22px; }
   p { margin: 0 0 26px; }
@@ -97,11 +98,12 @@
   }
   body > * { transition: filter 0.45s ease, opacity 0.45s ease; }
   body:has(.akira:hover) > *:not(.akira) { filter: blur(3px); opacity: 0.45; }
+  body:has(.reel-thumb:hover) > *:not(.reel-thumb) { filter: blur(3px); opacity: 0.45; }
   .akira figcaption {
     margin-top: 8px;
     margin-left: -2px;
-    font-size: 16px;
-    line-height: 1.55;
+    font-size: 13px;
+    line-height: 1.6;
     white-space: nowrap;
   }
   .akira figcaption a { text-decoration: underline; }
@@ -118,10 +120,70 @@
     line-height: 1.5;
     color: #999;
   }
+  .reel-thumb {
+    position: fixed;
+    top: 24px;
+    right: 24px;
+    width: 180px;
+    overflow: hidden;
+    cursor: pointer;
+    line-height: 0;
+    transform-origin: top right;
+    transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.4s ease, opacity 0.6s ease;
+    z-index: 40;
+  }
+  .reel-thumb video { width: 100%; height: auto; display: block; }
+  .reel-thumb:hover { transform: scale(1.035); box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12); }
+
+  .reel-lightbox {
+    position: fixed; inset: 0; z-index: 50;
+    display: none;
+    align-items: center; justify-content: center;
+  }
+  .reel-lightbox.active { display: flex; }
+  .reel-backdrop {
+    position: absolute; inset: 0;
+    background: rgba(255, 255, 255, 0.6);
+    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(8px);
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity 0.5s ease;
+  }
+  .reel-backdrop.show { opacity: 1; }
+  .reel-stage {
+    position: relative; z-index: 1;
+    width: min(1100px, 92vw);
+    transform-origin: center center;
+    will-change: transform;
+  }
+  .reel-player {
+    width: 100%; display: block;
+    aspect-ratio: 16 / 9;
+    background: #000;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
+  }
+  .reel-controls {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-top: 10px; font-size: 13px; color: #666;
+  }
+  .reel-actions { display: flex; gap: 16px; }
+  .reel-btn {
+    background: none; border: none; padding: 0; margin: 0;
+    font: inherit; color: #666; cursor: pointer; text-decoration: underline;
+  }
+  .reel-btn:hover { color: #1a52e0; }
+
   @media (max-width: 1024px) {
     .akira {
       position: static;
       margin-top: 64px;
+    }
+    .reel-thumb {
+      position: static;
+      width: 100%;
+      max-width: 340px;
+      margin: 0 0 32px;
     }
   }
 </style>
@@ -140,15 +202,145 @@
     <li>🍄 <a href="#" target="_blank" rel="noopener">bodega</a> — brain fog gummies *discontinued*</li>
   </ul>
 
+  <div class="reel-thumb" id="reelThumb" role="button" tabindex="0" aria-label="Play reel">
+    <video src="reel-preview.mp4" muted loop autoplay playsinline></video>
+  </div>
+
   <p class="hiring">Looking for NYC based product designer + iOS developers.</p>
 
   <p><a href="mailto:hi@internetlabs.co">hi@internetlabs.co</a></p>
 
   <figure class="akira">
-    <a class="gif-link" href="https://google.com" target="_blank" rel="noopener"><img class="gifimg" src="akira.gif?v=4" alt="Akira" /></a>
+    <a class="gif-link" href="https://google.com" target="_blank" rel="noopener"><img class="gifimg" src="akira.gif?v=6" alt="Akira" /></a>
     <figcaption><img class="pdficon" src="pdf.png" alt="PDF" /><a href="https://google.com" target="_blank" rel="noopener">21 things we like.pdf</a></figcaption>
     <p class="copyright">© 2026 Internet Labs</p>
   </figure>
+
+  <div class="reel-lightbox" id="reelLightbox" aria-hidden="true">
+    <div class="reel-backdrop" id="reelBackdrop"></div>
+    <div class="reel-stage" id="reelStage">
+      <video class="reel-player" id="reelPlayer" src="reel.mp4" poster="poster.jpg" playsinline preload="metadata"></video>
+      <div class="reel-controls">
+        <span class="reel-time" id="reelTime">0:00 / 0:00</span>
+        <span class="reel-actions">
+          <button class="reel-btn" id="reelMute" type="button">Mute</button>
+          <button class="reel-btn" id="reelRestart" type="button">Restart</button>
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <script>
+  (function () {
+    var thumb = document.getElementById('reelThumb');
+    var lb = document.getElementById('reelLightbox');
+    var backdrop = document.getElementById('reelBackdrop');
+    var stage = document.getElementById('reelStage');
+    var player = document.getElementById('reelPlayer');
+    var timeEl = document.getElementById('reelTime');
+    var muteBtn = document.getElementById('reelMute');
+    var restartBtn = document.getElementById('reelRestart');
+    if (!thumb || !lb || !stage) return;
+
+    var EASE = 'transform 0.55s cubic-bezier(0.22, 1, 0.36, 1)';
+    var closeHandler = null;
+    var closeTimer = null;
+
+    function fmt(t) {
+      if (!isFinite(t)) t = 0;
+      var m = Math.floor(t / 60);
+      var s = Math.floor(t % 60);
+      return m + ':' + (s < 10 ? '0' : '') + s;
+    }
+    function updateTime() {
+      timeEl.textContent = fmt(player.currentTime) + ' / ' + fmt(player.duration);
+    }
+
+    // measure the transform that maps the centered stage onto the thumbnail's rect
+    function collapsedTransform() {
+      stage.style.transition = 'none';
+      stage.style.transform = 'none';
+      var s = stage.getBoundingClientRect();
+      var t = thumb.getBoundingClientRect();
+      var scale = t.width / s.width;
+      var dx = (t.left + t.width / 2) - (s.left + s.width / 2);
+      var dy = (t.top + t.height / 2) - (s.top + s.height / 2);
+      return 'translate(' + dx + 'px, ' + dy + 'px) scale(' + scale + ')';
+    }
+
+    function open() {
+      if (lb.classList.contains('active')) return;
+      if (closeTimer) { clearTimeout(closeTimer); closeTimer = null; }
+      if (closeHandler) { stage.removeEventListener('transitionend', closeHandler); closeHandler = null; }
+      lb.classList.add('active');
+      lb.setAttribute('aria-hidden', 'false');
+      document.body.style.overflow = 'hidden';
+
+      var collapsed = collapsedTransform();
+      stage.style.transform = collapsed;   // start exactly over the thumbnail
+      void stage.offsetWidth;              // commit before animating
+      requestAnimationFrame(function () {
+        stage.style.transition = EASE;
+        stage.style.transform = 'none';    // grow to full, centered
+        backdrop.classList.add('show');
+      });
+
+      player.currentTime = 0;
+      player.muted = false;
+      muteBtn.textContent = 'Mute';
+      var p = player.play();
+      if (p && p.catch) p.catch(function () {});
+    }
+
+    function close() {
+      if (!lb.classList.contains('active')) return;
+      var collapsed = collapsedTransform();
+      stage.style.transition = 'none';
+      stage.style.transform = 'none';      // ensure we start from full
+      void stage.offsetWidth;
+      requestAnimationFrame(function () {
+        stage.style.transition = EASE;
+        stage.style.transform = collapsed; // shrink back into the thumbnail
+        backdrop.classList.remove('show');
+      });
+
+      var done = function () {
+        if (!lb.classList.contains('active')) return;
+        lb.classList.remove('active');
+        lb.setAttribute('aria-hidden', 'true');
+        document.body.style.overflow = '';
+        player.pause();
+        stage.style.transition = 'none';
+        stage.style.transform = 'none';
+        if (closeHandler) { stage.removeEventListener('transitionend', closeHandler); closeHandler = null; }
+        if (closeTimer) { clearTimeout(closeTimer); closeTimer = null; }
+      };
+      closeHandler = function (e) { if (e.target === stage && e.propertyName === 'transform') done(); };
+      stage.addEventListener('transitionend', closeHandler);
+      closeTimer = setTimeout(done, 700);
+    }
+
+    thumb.addEventListener('click', open);
+    thumb.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); open(); }
+    });
+    backdrop.addEventListener('click', close);
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && lb.classList.contains('active')) close();
+    });
+    muteBtn.addEventListener('click', function () {
+      player.muted = !player.muted;
+      muteBtn.textContent = player.muted ? 'Unmute' : 'Mute';
+    });
+    restartBtn.addEventListener('click', function () {
+      player.currentTime = 0;
+      var p = player.play();
+      if (p && p.catch) p.catch(function () {});
+    });
+    player.addEventListener('timeupdate', updateTime);
+    player.addEventListener('loadedmetadata', updateTime);
+  })();
+  </script>
 
   <script>
   (function () {
@@ -166,9 +358,11 @@
         var LOGO_SPEED = 220;
 
         var blocks = Array.prototype.filter.call(document.body.children, function (el) {
-          return el.tagName !== 'FIGURE' && el.tagName !== 'SCRIPT';
+          return el.tagName !== 'FIGURE' && el.tagName !== 'SCRIPT' &&
+                 !el.classList.contains('reel-thumb') && !el.classList.contains('reel-lightbox');
         });
         var figure = document.querySelector('.akira');
+        var reelThumb = document.querySelector('.reel-thumb');
 
         // snapshot original content, then empty each block
         var originals = blocks.map(function (b) {
@@ -176,6 +370,7 @@
         });
         blocks.forEach(function (b) { b.innerHTML = ''; });
         if (figure) { figure.style.opacity = '0'; }
+        if (reelThumb) { reelThumb.style.opacity = '0'; }
         reveal(); // content is now empty — safe to show
 
         function typeInto(srcNodes, target, speed) {
@@ -207,6 +402,15 @@
         blocks.forEach(function (b, i) {
           var speed = i === 0 ? LOGO_SPEED : SPEED;
           chain = chain.then(function () { return typeInto(originals[i], b, speed); });
+          if (i === 0) {
+            // hold on the logo for exactly one clean blink before the rest types
+            chain = chain.then(function () {
+              caret.style.animation = 'none';
+              void caret.offsetWidth; // reflow to restart the blink from the start
+              caret.style.animation = '';
+              return sleep(1050);
+            });
+          }
         });
         chain.then(function () {
           if (caret.parentNode) { caret.parentNode.removeChild(caret); }
@@ -214,6 +418,7 @@
             figure.style.transition = 'opacity 1.8s ease';
             figure.style.opacity = '1';
           }
+          if (reelThumb) { reelThumb.style.opacity = '1'; }
         });
       } catch (e) {
         reveal();

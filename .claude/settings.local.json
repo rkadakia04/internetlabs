@@ -59,7 +59,13 @@
       "Bash(git -c user.name='rkadakia04' -c user.email='rkadakia04@gmail.com' commit -qm \"Remove Products heading, update hiring line copy\")",
       "Bash(git -c user.name='rkadakia04' -c user.email='rkadakia04@gmail.com' commit -qm \"Update hiring line: NYC based requirement\")",
       "Bash(git -c user.name='rkadakia04' -c user.email='rkadakia04@gmail.com' commit -qm \"Bigger gif, smaller logo, hover blur+dim focus, clickable gif, copyright under pdf\")",
-      "Bash(git -c user.name='rkadakia04' -c user.email='rkadakia04@gmail.com' commit -qm \"Trim intro to two paragraphs\")"
+      "Bash(git -c user.name='rkadakia04' -c user.email='rkadakia04@gmail.com' commit -qm \"Trim intro to two paragraphs\")",
+      "Bash(ls -la '/Users/yyz/Downloads/GIF ASSETS/3_1.mp4')",
+      "Bash(ffprobe -v error -select_streams v:0 -show_entries stream=width,height,r_frame_rate -show_entries format=duration -of default=noprint_wrappers=1 '/Users/yyz/Downloads/GIF ASSETS/3_1.mp4')",
+      "Bash(ffmpeg -y -v error -f lavfi -i testsrc2=size=1280x720:rate=30:duration=12 -f lavfi -i sine=frequency=220:duration=12 -c:v libx264 -pix_fmt yuv420p -crf 23 -c:a aac -b:a 128k -shortest reel.mp4)",
+      "Bash(ffmpeg -y -v error -f lavfi -i testsrc2=size=480x270:rate=24:duration=8 -an -c:v libx264 -pix_fmt yuv420p -crf 30 reel-preview.mp4)",
+      "Bash(awk '{print $9, $5\" bytes\"}')",
+      "Bash(git -c user.name='rkadakia04' -c user.email='rkadakia04@gmail.com' commit -qm \"Add reel: corner loop + smooth FLIP lightbox player, mono body, video assets\")"
     ]
   }
 }
