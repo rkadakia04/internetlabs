@@ -300,6 +300,7 @@
       clearHandlers();
       var first = video.getBoundingClientRect();          // corner (small)
       lb.classList.add('active');
+      thumb.style.height = thumb.offsetHeight + 'px';     // reserve the corner's space so flow doesn't shift (mobile)
       stage.insertBefore(video, controls);                // re-parent into centered stage (keeps playing)
       video.style.transition = 'none';
       video.style.transform = 'none';
@@ -357,6 +358,7 @@
         video.style.transition = 'none';
         video.style.transform = 'none';
         thumb.appendChild(video);                            // re-home into the corner (no visual jump)
+        thumb.style.height = '';                             // release the reserved space
         if (fadeRAF) { cancelAnimationFrame(fadeRAF); fadeRAF = null; }
         video.muted = true;
         video.volume = 1;                                    // restore for next open
