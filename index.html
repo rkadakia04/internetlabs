@@ -89,16 +89,17 @@
     height: auto;
     image-rendering: pixelated;
     transform-origin: bottom left;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.10);
     transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.4s ease;
     will-change: transform;
   }
   .akira:hover .gifimg {
     transform: scale(1.035);
-    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+    box-shadow: 0 8px 22px rgba(0, 0, 0, 0.14);
   }
   body > * { transition: filter 0.45s ease, opacity 0.45s ease; }
-  body:has(.akira:hover) > *:not(.akira) { filter: blur(3px); opacity: 0.45; }
-  body:has(.reel-thumb:hover) > *:not(.reel-thumb) { filter: blur(3px); opacity: 0.45; }
+  body:has(.akira:hover) > *:not(.akira):not(.reel-lightbox) { filter: blur(3px); opacity: 0.45; }
+  body:not(:has(.reel-lightbox.active)):has(.reel-thumb:hover) > *:not(.reel-thumb):not(.reel-lightbox) { filter: blur(3px); opacity: 0.45; }
   .akira figcaption {
     margin-top: 8px;
     margin-left: -2px;
@@ -120,6 +121,15 @@
     line-height: 1.5;
     color: #999;
   }
+  /* one video element: lives in the corner, re-parents into the stage and FLIPs to center */
+  #reelVideo {
+    display: block;
+    width: 100%;
+    height: auto;
+    vertical-align: bottom;
+    transform-origin: center center;
+    will-change: transform;
+  }
   .reel-thumb {
     position: fixed;
     top: 24px;
@@ -129,11 +139,11 @@
     cursor: pointer;
     line-height: 0;
     transform-origin: top right;
-    transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.4s ease, opacity 0.6s ease;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.10);
+    transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.4s ease, opacity 0.45s ease, filter 0.45s ease;
     z-index: 40;
   }
-  .reel-thumb video { width: 100%; height: auto; display: block; }
-  .reel-thumb:hover { transform: scale(1.035); box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12); }
+  .reel-thumb:hover { transform: scale(1.035); box-shadow: 0 8px 22px rgba(0, 0, 0, 0.14); }
 
   .reel-lightbox {
     position: fixed; inset: 0; z-index: 50;
@@ -154,19 +164,15 @@
   .reel-stage {
     position: relative; z-index: 1;
     width: min(1100px, 92vw);
-    transform-origin: center center;
-    will-change: transform;
   }
-  .reel-player {
-    width: 100%; display: block;
-    aspect-ratio: 16 / 9;
-    background: #000;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
-  }
+  .reel-stage #reelVideo { box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25); }
   .reel-controls {
     display: flex; justify-content: space-between; align-items: center;
     margin-top: 10px; font-size: 13px; color: #666;
+    opacity: 0;
+    transition: opacity 0.3s ease;
   }
+  .reel-lightbox.controls-on .reel-controls { opacity: 1; }
   .reel-actions { display: flex; gap: 16px; }
   .reel-btn {
     background: none; border: none; padding: 0; margin: 0;
@@ -203,10 +209,10 @@
   </ul>
 
   <div class="reel-thumb" id="reelThumb" role="button" tabindex="0" aria-label="Play reel">
-    <video src="reel-preview.mp4" muted loop autoplay playsinline></video>
+    <video id="reelVideo" src="reel.mp4" poster="poster.jpg" muted loop autoplay playsinline preload="auto"></video>
   </div>
 
-  <p class="hiring">Looking for NYC based product designer + iOS developers.</p>
+  <p class="hiring">Looking for product designers + iOS developers.</p>
 
   <p><a href="mailto:hi@internetlabs.co">hi@internetlabs.co</a></p>
 
@@ -219,7 +225,6 @@
   <div class="reel-lightbox" id="reelLightbox" aria-hidden="true">
     <div class="reel-backdrop" id="reelBackdrop"></div>
     <div class="reel-stage" id="reelStage">
-      <video class="reel-player" id="reelPlayer" src="reel.mp4" poster="poster.jpg" playsinline preload="metadata"></video>
       <div class="reel-controls">
         <span class="reel-time" id="reelTime">0:00 / 0:00</span>
         <span class="reel-actions">
@@ -236,15 +241,31 @@
     var lb = document.getElementById('reelLightbox');
     var backdrop = document.getElementById('reelBackdrop');
     var stage = document.getElementById('reelStage');
-    var player = document.getElementById('reelPlayer');
+    var video = document.getElementById('reelVideo');
+    var controls = stage ? stage.querySelector('.reel-controls') : null;
     var timeEl = document.getElementById('reelTime');
     var muteBtn = document.getElementById('reelMute');
     var restartBtn = document.getElementById('reelRestart');
-    if (!thumb || !lb || !stage) return;
+    if (!thumb || !lb || !stage || !video) return;
 
     var EASE = 'transform 0.55s cubic-bezier(0.22, 1, 0.36, 1)';
-    var closeHandler = null;
-    var closeTimer = null;
+    var endHandler = null;
+    var safety = null;
+    var fadeRAF = null;
+
+    function fadeVolume(from, to, duration) {
+      if (fadeRAF) { cancelAnimationFrame(fadeRAF); fadeRAF = null; }
+      var start = null;
+      function step(ts) {
+        if (start === null) start = ts;
+        var t = duration > 0 ? Math.min(1, (ts - start) / duration) : 1;
+        var v = from + (to - from) * t;
+        try { video.volume = v < 0 ? 0 : (v > 1 ? 1 : v); } catch (e) {}
+        if (t < 1) { fadeRAF = requestAnimationFrame(step); }
+        else { fadeRAF = null; }
+      }
+      fadeRAF = requestAnimationFrame(step);
+    }
 
     function fmt(t) {
       if (!isFinite(t)) t = 0;
@@ -253,71 +274,95 @@
       return m + ':' + (s < 10 ? '0' : '') + s;
     }
     function updateTime() {
-      timeEl.textContent = fmt(player.currentTime) + ' / ' + fmt(player.duration);
+      timeEl.textContent = fmt(video.currentTime) + ' / ' + fmt(video.duration);
     }
-
-    // measure the transform that maps the centered stage onto the thumbnail's rect
-    function collapsedTransform() {
-      stage.style.transition = 'none';
-      stage.style.transform = 'none';
-      var s = stage.getBoundingClientRect();
-      var t = thumb.getBoundingClientRect();
-      var scale = t.width / s.width;
-      var dx = (t.left + t.width / 2) - (s.left + s.width / 2);
-      var dy = (t.top + t.height / 2) - (s.top + s.height / 2);
+    function clearHandlers() {
+      if (endHandler) { video.removeEventListener('transitionend', endHandler); endHandler = null; }
+      if (safety) { clearTimeout(safety); safety = null; }
+    }
+    // transform that makes an element naturally at toRect appear at fromRect
+    function deltaTransform(fromRect, toRect) {
+      var scale = fromRect.width / toRect.width;
+      var dx = (fromRect.left + fromRect.width / 2) - (toRect.left + toRect.width / 2);
+      var dy = (fromRect.top + fromRect.height / 2) - (toRect.top + toRect.height / 2);
       return 'translate(' + dx + 'px, ' + dy + 'px) scale(' + scale + ')';
+    }
+    function resume() {
+      var p = video.play();
+      if (p && p.catch) p.catch(function () {});
     }
 
     function open() {
       if (lb.classList.contains('active')) return;
-      if (closeTimer) { clearTimeout(closeTimer); closeTimer = null; }
-      if (closeHandler) { stage.removeEventListener('transitionend', closeHandler); closeHandler = null; }
+      clearHandlers();
+      var first = video.getBoundingClientRect();          // corner (small)
       lb.classList.add('active');
-      lb.setAttribute('aria-hidden', 'false');
-      document.body.style.overflow = 'hidden';
-
-      var collapsed = collapsedTransform();
-      stage.style.transform = collapsed;   // start exactly over the thumbnail
-      void stage.offsetWidth;              // commit before animating
+      stage.insertBefore(video, controls);                // re-parent into centered stage (keeps playing)
+      video.style.transition = 'none';
+      video.style.transform = 'none';
+      var last = video.getBoundingClientRect();            // full, centered
+      video.style.transform = deltaTransform(first, last); // appear back at the corner
+      void video.offsetWidth;
       requestAnimationFrame(function () {
-        stage.style.transition = EASE;
-        stage.style.transform = 'none';    // grow to full, centered
+        video.style.transition = EASE;
+        video.style.transform = 'none';                    // grow to full
         backdrop.classList.add('show');
       });
 
-      player.currentTime = 0;
-      player.muted = false;
+      if (fadeRAF) { cancelAnimationFrame(fadeRAF); fadeRAF = null; }
+      video.volume = 1;
+      video.currentTime = 0;
+      video.muted = false;
       muteBtn.textContent = 'Mute';
-      var p = player.play();
-      if (p && p.catch) p.catch(function () {});
+      resume();
+      lb.setAttribute('aria-hidden', 'false');
+      document.body.style.overflow = 'hidden';
+
+      endHandler = function (e) {
+        if (e.target === video && e.propertyName === 'transform') {
+          lb.classList.add('controls-on');
+          clearHandlers();
+        }
+      };
+      video.addEventListener('transitionend', endHandler);
+      safety = setTimeout(function () { lb.classList.add('controls-on'); clearHandlers(); }, 750);
     }
 
     function close() {
       if (!lb.classList.contains('active')) return;
-      var collapsed = collapsedTransform();
-      stage.style.transition = 'none';
-      stage.style.transform = 'none';      // ensure we start from full
-      void stage.offsetWidth;
+      clearHandlers();
+      lb.classList.remove('controls-on');
+      var first = video.getBoundingClientRect();           // full, centered
+      var t = thumb.getBoundingClientRect();                // corner home (empty -> zero height)
+      var ratio = first.height / first.width;
+      var target = { left: t.left, top: t.top, width: t.width, height: t.width * ratio };
+      video.style.transition = 'none';
+      video.style.transform = 'none';
+      void video.offsetWidth;
       requestAnimationFrame(function () {
-        stage.style.transition = EASE;
-        stage.style.transform = collapsed; // shrink back into the thumbnail
+        video.style.transition = EASE;
+        video.style.transform = deltaTransform(target, first); // shrink toward the corner
         backdrop.classList.remove('show');
       });
+      fadeVolume(video.volume, 0, 520);                      // fade the audio out as it collapses
 
       var done = function () {
         if (!lb.classList.contains('active')) return;
         lb.classList.remove('active');
         lb.setAttribute('aria-hidden', 'true');
         document.body.style.overflow = '';
-        player.pause();
-        stage.style.transition = 'none';
-        stage.style.transform = 'none';
-        if (closeHandler) { stage.removeEventListener('transitionend', closeHandler); closeHandler = null; }
-        if (closeTimer) { clearTimeout(closeTimer); closeTimer = null; }
+        video.style.transition = 'none';
+        video.style.transform = 'none';
+        thumb.appendChild(video);                            // re-home into the corner (no visual jump)
+        if (fadeRAF) { cancelAnimationFrame(fadeRAF); fadeRAF = null; }
+        video.muted = true;
+        video.volume = 1;                                    // restore for next open
+        resume();
+        clearHandlers();
       };
-      closeHandler = function (e) { if (e.target === stage && e.propertyName === 'transform') done(); };
-      stage.addEventListener('transitionend', closeHandler);
-      closeTimer = setTimeout(done, 700);
+      endHandler = function (e) { if (e.target === video && e.propertyName === 'transform') done(); };
+      video.addEventListener('transitionend', endHandler);
+      safety = setTimeout(done, 750);
     }
 
     thumb.addEventListener('click', open);
@@ -329,16 +374,15 @@
       if (e.key === 'Escape' && lb.classList.contains('active')) close();
     });
     muteBtn.addEventListener('click', function () {
-      player.muted = !player.muted;
-      muteBtn.textContent = player.muted ? 'Unmute' : 'Mute';
+      video.muted = !video.muted;
+      muteBtn.textContent = video.muted ? 'Unmute' : 'Mute';
     });
     restartBtn.addEventListener('click', function () {
-      player.currentTime = 0;
-      var p = player.play();
-      if (p && p.catch) p.catch(function () {});
+      video.currentTime = 0;
+      resume();
     });
-    player.addEventListener('timeupdate', updateTime);
-    player.addEventListener('loadedmetadata', updateTime);
+    video.addEventListener('timeupdate', updateTime);
+    video.addEventListener('loadedmetadata', updateTime);
   })();
   </script>
 
@@ -363,6 +407,7 @@
         });
         var figure = document.querySelector('.akira');
         var reelThumb = document.querySelector('.reel-thumb');
+        var reelVideo = document.getElementById('reelVideo');
 
         // snapshot original content, then empty each block
         var originals = blocks.map(function (b) {
@@ -417,8 +462,15 @@
           if (figure) {
             figure.style.transition = 'opacity 1.8s ease';
             figure.style.opacity = '1';
+            // after the reveal, drop the inline opacity so CSS hover-dimming can take over
+            setTimeout(function () { figure.style.transition = ''; figure.style.opacity = ''; }, 1850);
           }
-          if (reelThumb) { reelThumb.style.opacity = '1'; }
+          if (reelThumb) {
+            reelThumb.style.opacity = '1';
+            setTimeout(function () { reelThumb.style.opacity = ''; }, 600);
+          }
+          // the reel autoplayed silently during the intro — restart it from 0 as it appears
+          if (reelVideo) { try { reelVideo.currentTime = 0; } catch (e) {} }
         });
       } catch (e) {
         reveal();
