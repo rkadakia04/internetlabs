@@ -66,7 +66,8 @@
       "Bash(ffmpeg -y -v error -f lavfi -i testsrc2=size=480x270:rate=24:duration=8 -an -c:v libx264 -pix_fmt yuv420p -crf 30 reel-preview.mp4)",
       "Bash(awk '{print $9, $5\" bytes\"}')",
       "Bash(git -c user.name='rkadakia04' -c user.email='rkadakia04@gmail.com' commit -qm \"Add reel: corner loop + smooth FLIP lightbox player, mono body, video assets\")",
-      "Bash(git -c user.name='rkadakia04' -c user.email='rkadakia04@gmail.com' commit -qm \"Single-video reel with seamless FLIP, audio fade-out, default shadows, hover dim fixes, start-at-0\")"
+      "Bash(git -c user.name='rkadakia04' -c user.email='rkadakia04@gmail.com' commit -qm \"Single-video reel with seamless FLIP, audio fade-out, default shadows, hover dim fixes, start-at-0\")",
+      "Bash(git -c user.name='rkadakia04' -c user.email='rkadakia04@gmail.com' commit -qm \"Add blue folder favicon \\(png set\\)\")"
     ]
   }
 }
