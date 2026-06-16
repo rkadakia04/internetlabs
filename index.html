@@ -44,6 +44,7 @@
     line-height: 1.55;
     font-weight: normal;
     text-align: left;
+    letter-spacing: -0.2px;
   }
   h1, h2 {
     font-size: 16px;
@@ -51,9 +52,9 @@
     letter-spacing: normal;
   }
   h1 {
-    margin: 0 0 28px;
+    margin: 0 0 20px;
     font-family: "Pixelify Sans", sans-serif;
-    font-size: 24px;
+    font-size: 22px;
   }
   h2 { margin: 0 0 22px; }
   p { margin: 0 0 26px; }
@@ -74,25 +75,28 @@
   .intro { max-width: 360px; }
   .akira {
     position: fixed;
-    bottom: 24px;
+    bottom: 40px;
     left: 24px;
     width: auto;
     margin: 0;
     text-align: left;
   }
-  .akira > img {
+  .akira .gif-link { display: block; }
+  .akira .gifimg {
     display: block;
-    width: 210px;
+    width: 230px;
     height: auto;
     image-rendering: pixelated;
     transform-origin: bottom left;
     transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.4s ease;
     will-change: transform;
   }
-  .akira:hover > img {
+  .akira:hover .gifimg {
     transform: scale(1.035);
     box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
   }
+  body > * { transition: filter 0.45s ease, opacity 0.45s ease; }
+  body:has(.akira:hover) > *:not(.akira) { filter: blur(3px); opacity: 0.45; }
   .akira figcaption {
     margin-top: 8px;
     margin-left: -2px;
@@ -109,7 +113,7 @@
   }
   .hiring { margin-top: 26px; }
   .copyright {
-    margin-top: 40px;
+    margin: 10px 0 0;
     font-size: 12px;
     line-height: 1.5;
     color: #999;
@@ -130,21 +134,22 @@
 
   <p class="intro">We make things people love, use every day, and can't stop sending to their friends.</p>
 
+  <p class="intro">We're a small team in New York, building a handful of products at once and shipping fast. Some take off, some don't, and we keep going either way.</p>
+
   <ul>
     <li>⛳ <a href="https://imessagegolf.com" target="_blank" rel="noopener">golf</a> — minigolf in iMessage</li>
     <li>🌱 <a href="https://apps.apple.com/us/app/plant-self-care/id6760047919" target="_blank" rel="noopener">plant</a> — gamified self care</li>
-    <li>🍄 <a href="#" target="_blank" rel="noopener">bodega</a> — gummies for brain fog *discontinued*</li>
+    <li>🍄 <a href="#" target="_blank" rel="noopener">bodega</a> — brain fog gummies *discontinued*</li>
   </ul>
 
-  <p class="hiring">We're currently looking for a product designer and iOS developer. Must be NYC based.</p>
+  <p class="hiring">Looking for NYC based product designer + iOS developers.</p>
 
-  <p>Contact: <a href="mailto:hi@internetlabs.co">hi@internetlabs.co</a></p>
-
-  <p class="copyright">© 2026 Internet Labs</p>
+  <p><a href="mailto:hi@internetlabs.co">hi@internetlabs.co</a></p>
 
   <figure class="akira">
-    <img src="akira.gif?v=4" alt="Akira" />
-    <figcaption><img class="pdficon" src="pdf.png" alt="PDF" /><a href="#" target="_blank" rel="noopener">21 things we like.pdf</a></figcaption>
+    <a class="gif-link" href="https://google.com" target="_blank" rel="noopener"><img class="gifimg" src="akira.gif?v=4" alt="Akira" /></a>
+    <figcaption><img class="pdficon" src="pdf.png" alt="PDF" /><a href="https://google.com" target="_blank" rel="noopener">21 things we like.pdf</a></figcaption>
+    <p class="copyright">© 2026 Internet Labs</p>
   </figure>
 
   <script>
