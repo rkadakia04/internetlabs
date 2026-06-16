@@ -255,6 +255,13 @@
     var endHandler = null;
     var safety = null;
     var fadeRAF = null;
+    var unmuteTimer = null;
+    var unmuteHandler = null;
+
+    function clearUnmute() {
+      if (unmuteHandler) { video.removeEventListener('seeked', unmuteHandler); unmuteHandler = null; }
+      if (unmuteTimer) { clearTimeout(unmuteTimer); unmuteTimer = null; }
+    }
 
     function fadeVolume(from, to, duration) {
       if (fadeRAF) { cancelAnimationFrame(fadeRAF); fadeRAF = null; }
@@ -314,10 +321,20 @@
       });
 
       if (fadeRAF) { cancelAnimationFrame(fadeRAF); fadeRAF = null; }
+      clearUnmute();
       video.volume = 1;
-      video.currentTime = 0;
-      video.muted = false;
       muteBtn.textContent = 'Mute';
+      if (video.currentTime > 0.05) {
+        // seek to the start while muted, then unmute once the seek lands —
+        // avoids a blip of audio from the old loop position
+        video.muted = true;
+        unmuteHandler = function () { clearUnmute(); video.muted = false; };
+        video.addEventListener('seeked', unmuteHandler);
+        unmuteTimer = setTimeout(unmuteHandler, 500); // fallback if 'seeked' never fires
+        video.currentTime = 0;
+      } else {
+        video.muted = false;
+      }
       resume();
       lb.setAttribute('aria-hidden', 'false');
       document.body.style.overflow = 'hidden';
@@ -360,6 +377,7 @@
         thumb.appendChild(video);                            // re-home into the corner (no visual jump)
         thumb.style.height = '';                             // release the reserved space
         if (fadeRAF) { cancelAnimationFrame(fadeRAF); fadeRAF = null; }
+        clearUnmute();
         video.muted = true;
         video.volume = 1;                                    // restore for next open
         resume();
