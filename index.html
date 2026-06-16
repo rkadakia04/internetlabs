@@ -199,7 +199,7 @@
       position: static;
       width: 230px;
       max-width: 100%;
-      margin: 40px 0;
+      margin: 56px 0;
     }
   }
 </style>
@@ -492,7 +492,7 @@
           var speed = i === 0 ? LOGO_SPEED : SPEED;
           chain = chain.then(function () { return typeInto(originals[i], b, speed); });
           if (isMobile && reelThumb && b === reelThumb.previousElementSibling) {
-            chain = chain.then(function () { revealReel(); return sleep(350); });
+            chain = chain.then(function () { revealReel(); });
           }
         });
         chain.then(function () {
