@@ -72,7 +72,8 @@
       "Bash(git -c user.name='rkadakia04' -c user.email='rkadakia04@gmail.com' commit -qm \"Update hiring + contact copy, balance mobile video spacing\")",
       "Bash(git -c user.name='rkadakia04' -c user.email='rkadakia04@gmail.com' commit -qm \"Reserve corner height on expand so mobile flow doesn't shift\")",
       "Bash(git -c user.name='rkadakia04' -c user.email='rkadakia04@gmail.com' commit -qm \"Fix audio blip: stay muted through seek-to-0, unmute on seeked\")",
-      "Bash(git -c user.name='rkadakia04' -c user.email='rkadakia04@gmail.com' commit -qm \"Gate hover effects to hover-capable devices \\(fix mobile stuck-blur trap\\)\")"
+      "Bash(git -c user.name='rkadakia04' -c user.email='rkadakia04@gmail.com' commit -qm \"Gate hover effects to hover-capable devices \\(fix mobile stuck-blur trap\\)\")",
+      "Bash(git -c user.name='rkadakia04' -c user.email='rkadakia04@gmail.com' commit -qm \"Hide empty corner on expand \\(no ghost\\), reveal reel chronologically on mobile\")"
     ]
   }
 }

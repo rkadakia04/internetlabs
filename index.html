@@ -315,6 +315,7 @@
       var first = video.getBoundingClientRect();          // corner (small)
       lb.classList.add('active');
       thumb.style.height = thumb.offsetHeight + 'px';     // reserve the corner's space so flow doesn't shift (mobile)
+      thumb.style.visibility = 'hidden';                  // hide the now-empty corner so its shadow doesn't ghost
       stage.insertBefore(video, controls);                // re-parent into centered stage (keeps playing)
       video.style.transition = 'none';
       video.style.transform = 'none';
@@ -383,6 +384,7 @@
         video.style.transform = 'none';
         thumb.appendChild(video);                            // re-home into the corner (no visual jump)
         thumb.style.height = '';                             // release the reserved space
+        thumb.style.visibility = '';                         // show the corner again
         if (fadeRAF) { cancelAnimationFrame(fadeRAF); fadeRAF = null; }
         clearUnmute();
         video.muted = true;
@@ -473,6 +475,18 @@
           }, Promise.resolve());
         }
 
+        // on small screens the reel sits in-flow under the products, so reveal it there (chronological);
+        // on desktop it's a fixed corner, so reveal it at the end with the gif
+        var isMobile = window.matchMedia && window.matchMedia('(max-width: 1024px)').matches;
+        var reelDone = false;
+        function revealReel() {
+          if (reelDone || !reelThumb) return;
+          reelDone = true;
+          if (reelVideo) { try { reelVideo.currentTime = 0; } catch (e) {} }
+          reelThumb.style.opacity = '1';
+          setTimeout(function () { reelThumb.style.opacity = ''; }, 600);
+        }
+
         var chain = Promise.resolve();
         blocks.forEach(function (b, i) {
           var speed = i === 0 ? LOGO_SPEED : SPEED;
@@ -486,6 +500,9 @@
               return sleep(1050);
             });
           }
+          if (isMobile && reelThumb && b === reelThumb.previousElementSibling) {
+            chain = chain.then(function () { revealReel(); return sleep(350); });
+          }
         });
         chain.then(function () {
           if (caret.parentNode) { caret.parentNode.removeChild(caret); }
@@ -495,12 +512,7 @@
             // after the reveal, drop the inline opacity so CSS hover-dimming can take over
             setTimeout(function () { figure.style.transition = ''; figure.style.opacity = ''; }, 1850);
           }
-          if (reelThumb) {
-            reelThumb.style.opacity = '1';
-            setTimeout(function () { reelThumb.style.opacity = ''; }, 600);
-          }
-          // the reel autoplayed silently during the intro — restart it from 0 as it appears
-          if (reelVideo) { try { reelVideo.currentTime = 0; } catch (e) {} }
+          revealReel(); // desktop / fallback: reveal with the gif at the end
         });
       } catch (e) {
         reveal();
