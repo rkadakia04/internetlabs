@@ -197,8 +197,8 @@
     }
     .reel-thumb {
       position: static;
-      width: 100%;
-      max-width: 340px;
+      width: 230px;
+      max-width: 100%;
       margin: 40px 0;
     }
   }
@@ -491,15 +491,6 @@
         blocks.forEach(function (b, i) {
           var speed = i === 0 ? LOGO_SPEED : SPEED;
           chain = chain.then(function () { return typeInto(originals[i], b, speed); });
-          if (i === 0) {
-            // hold on the logo for exactly one clean blink before the rest types
-            chain = chain.then(function () {
-              caret.style.animation = 'none';
-              void caret.offsetWidth; // reflow to restart the blink from the start
-              caret.style.animation = '';
-              return sleep(1050);
-            });
-          }
           if (isMobile && reelThumb && b === reelThumb.previousElementSibling) {
             chain = chain.then(function () { revealReel(); return sleep(350); });
           }
