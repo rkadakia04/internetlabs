@@ -160,7 +160,7 @@
     line-height: 0;
     border-radius: 4.5px;
     /* poster as a background so it's painted on the thumb itself (can't misalign like an absolute overlay) */
-    background: #fff url('poster.jpg') center center / cover no-repeat;
+    background: #fff url('poster.jpg?v=2') center center / cover no-repeat;
     transform-origin: top right;
     box-shadow: 0 4px 14px rgba(0, 0, 0, 0.10);
     transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.4s ease, opacity 0.45s ease, filter 0.45s ease;
@@ -236,7 +236,7 @@
   </ul>
 
   <div class="reel-thumb" id="reelThumb" role="button" tabindex="0" aria-label="Play reel">
-    <video id="reelVideo" src="reel.mp4" poster="poster.jpg" muted loop autoplay playsinline preload="auto"></video>
+    <video id="reelVideo" src="reel.mp4?v=2" poster="poster.jpg?v=2" muted loop autoplay playsinline preload="auto"></video>
   </div>
 
   <p class="hiring">Looking for NYC based product designers, iOS developers, and growth partners.</p>

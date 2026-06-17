@@ -112,7 +112,12 @@
       "Bash(git -c user.name='rkadakia04' -c user.email='rkadakia04@gmail.com' commit -qm \"Tighten creative venture paragraph copy\")",
       "Bash(git -c user.name='rkadakia04' -c user.email='rkadakia04@gmail.com' commit -qm \"Tighten paragraph wrap to 330px on mobile only \\(desktop stays 360px\\)\")",
       "Bash(git -c user.name='rkadakia04' -c user.email='rkadakia04@gmail.com' commit -qm \"Update social share description copy\")",
-      "Bash(git -c user.name='rkadakia04' -c user.email='rkadakia04@gmail.com' commit -qm \"Link gif + caption to hosted 21-things-we-like.pdf\")"
+      "Bash(git -c user.name='rkadakia04' -c user.email='rkadakia04@gmail.com' commit -qm \"Link gif + caption to hosted 21-things-we-like.pdf\")",
+      "Bash(pdftoppm -v)",
+      "Bash(pdftotext -layout -f 2 -l 73 \"/Users/yyz/Downloads/21 things we like, Internet.pdf\" pdftext.txt)",
+      "Bash(sed -n '1,60p' pdftext.txt)",
+      "Bash(git -c user.name='rkadakia04' -c user.email='rkadakia04@gmail.com' commit -qm \"Replace 21-things-we-like.pdf with updated version\")",
+      "Bash(git -c user.name='rkadakia04' -c user.email='rkadakia04@gmail.com' commit -qm \"Swap in new reel video + poster \\(cache-bust v2\\)\")"
     ]
   }
 }
