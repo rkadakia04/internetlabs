@@ -139,9 +139,11 @@
     will-change: transform;
   }
   /* hide iOS Safari's native "tap to play" overlay */
-  #reelVideo::-webkit-media-controls-start-playback-button,
-  #reelVideo::-webkit-media-controls-play-button,
-  #reelVideo::-webkit-media-controls {
+  video::-webkit-media-controls-start-playback-button,
+  video::-webkit-media-controls-overlay-play-button,
+  video::-webkit-media-controls-play-button,
+  video::-webkit-media-controls-panel,
+  video::-webkit-media-controls {
     display: none !important;
     -webkit-appearance: none;
   }
@@ -453,8 +455,9 @@
           return Array.prototype.map.call(b.childNodes, function (n) { return n.cloneNode(true); });
         });
         blocks.forEach(function (b) { b.innerHTML = ''; });
-        if (figure) { figure.style.opacity = '0'; }
-        if (reelThumb) { reelThumb.style.opacity = '0'; }
+        // hide instantly (transition off) so they don't visibly fade out at reveal
+        if (figure) { figure.style.transition = 'none'; figure.style.opacity = '0'; }
+        if (reelThumb) { reelThumb.style.transition = 'none'; reelThumb.style.opacity = '0'; }
         reveal(); // content is now empty — safe to show
 
         function typeInto(srcNodes, target, speed) {
@@ -489,9 +492,15 @@
         function revealReel() {
           if (reelDone || !reelThumb) return;
           reelDone = true;
-          if (reelVideo) { try { reelVideo.currentTime = 0; } catch (e) {} }
+          if (reelVideo) {
+            try { reelVideo.currentTime = 0; } catch (e) {}
+            // force playback now that it's visible — dismisses iOS's autoplay-blocked play button
+            var pp = reelVideo.play && reelVideo.play();
+            if (pp && pp.catch) pp.catch(function () {});
+          }
+          reelThumb.style.transition = 'opacity 0.6s ease';
           reelThumb.style.opacity = '1';
-          setTimeout(function () { reelThumb.style.opacity = ''; }, 600);
+          setTimeout(function () { reelThumb.style.transition = ''; reelThumb.style.opacity = ''; }, 700);
         }
 
         var chain = Promise.resolve();
