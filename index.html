@@ -33,9 +33,7 @@
     background: #000;
     margin-left: 2px;
     vertical-align: -1px;
-    animation: blink 1.05s step-end infinite;
   }
-  @keyframes blink { 0%, 50% { opacity: 1; } 50.01%, 100% { opacity: 0; } }
   body {
     font-family: ui-monospace, "SF Mono", SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
     color: #666;
@@ -457,7 +455,7 @@
         blocks.forEach(function (b) { b.innerHTML = ''; });
         // hide instantly (transition off) so they don't visibly fade out at reveal
         if (figure) { figure.style.transition = 'none'; figure.style.opacity = '0'; }
-        if (reelThumb) { reelThumb.style.transition = 'none'; reelThumb.style.opacity = '0'; }
+        if (reelThumb) { reelThumb.style.transition = 'none'; reelThumb.style.opacity = '0'; reelThumb.style.filter = 'blur(10px)'; }
         reveal(); // content is now empty — safe to show
 
         function typeInto(srcNodes, target, speed) {
@@ -492,18 +490,41 @@
         function revealReel() {
           if (reelDone || !reelThumb) return;
           reelDone = true;
+          function doReveal() {
+            reelThumb.style.transition = 'opacity 0.6s ease, filter 0.6s ease';
+            reelThumb.style.opacity = '1';
+            reelThumb.style.filter = 'blur(0px)';
+            setTimeout(function () {
+              reelThumb.style.transition = '';
+              reelThumb.style.opacity = '';
+              reelThumb.style.filter = '';
+            }, 700);
+          }
           if (reelVideo) {
-            try { reelVideo.currentTime = 0; } catch (e) {}
-            // force playback now that it's visible — dismisses iOS's autoplay-blocked play button
+            // force playback now that it's about to show — dismisses iOS's autoplay-blocked play button
             var pp = reelVideo.play && reelVideo.play();
             if (pp && pp.catch) pp.catch(function () {});
+            if (reelVideo.currentTime > 0.05) {
+              // the loop drifted while hidden — seek to the start BEFORE revealing so the first
+              // frame is what appears (not a random frame that then jumps to 0)
+              var fb;
+              var onSeeked = function () {
+                reelVideo.removeEventListener('seeked', onSeeked);
+                clearTimeout(fb);
+                doReveal();
+              };
+              fb = setTimeout(function () { reelVideo.removeEventListener('seeked', onSeeked); doReveal(); }, 400);
+              reelVideo.addEventListener('seeked', onSeeked);
+              try { reelVideo.currentTime = 0; } catch (e) { clearTimeout(fb); reelVideo.removeEventListener('seeked', onSeeked); doReveal(); }
+            } else {
+              doReveal();
+            }
+          } else {
+            doReveal();
           }
-          reelThumb.style.transition = 'opacity 0.6s ease';
-          reelThumb.style.opacity = '1';
-          setTimeout(function () { reelThumb.style.transition = ''; reelThumb.style.opacity = ''; }, 700);
         }
 
-        var chain = Promise.resolve();
+        var chain = sleep(1300); // hold on a blank page before the logo starts typing
         blocks.forEach(function (b, i) {
           var speed = i === 0 ? LOGO_SPEED : SPEED;
           chain = chain.then(function () { return typeInto(originals[i], b, speed); });
