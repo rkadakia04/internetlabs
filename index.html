@@ -182,6 +182,7 @@
     position: relative; z-index: 1;
     width: min(1100px, 92vw);
   }
+  .reel-stage #reelVideo { box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25); }
   .reel-controls {
     display: flex; justify-content: space-between; align-items: center;
     margin-top: 10px; font-size: 13px; color: #666;
@@ -264,7 +265,7 @@
     var restartBtn = document.getElementById('reelRestart');
     if (!thumb || !lb || !stage || !video) return;
 
-    var EASE = 'transform 0.55s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.45s ease, box-shadow 0.55s ease';
+    var EASE = 'transform 0.55s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.45s ease';
     var endHandler = null;
     var safety = null;
     var fadeRAF = null;
@@ -330,13 +331,11 @@
       video.style.transform = 'none';
       var last = video.getBoundingClientRect();             // full, centered
       video.style.transform = deltaTransform(first, last);  // collapsed over the corner
-      video.style.boxShadow = '0 20px 60px rgba(0, 0, 0, 0)'; // expanded shadow starts invisible
       void video.offsetWidth;
       // grow from the current frame — no seek, so nothing stutters during the animation
       requestAnimationFrame(function () {
         video.style.transition = EASE;
         video.style.transform = 'none';
-        video.style.boxShadow = '0 20px 60px rgba(0, 0, 0, 0.25)'; // fade shadow in as it grows
         backdrop.classList.add('show');
       });
 
@@ -372,7 +371,6 @@
       requestAnimationFrame(function () {
         video.style.transition = EASE;
         video.style.transform = deltaTransform(target, first); // shrink toward the corner
-        video.style.boxShadow = '0 20px 60px rgba(0, 0, 0, 0)'; // fade shadow out as it shrinks
         backdrop.classList.remove('show');
       });
       fadeVolume(video.volume, 0, 520);                      // fade the audio out as it collapses
@@ -385,7 +383,6 @@
         video.style.transition = 'none';
         video.style.transform = 'none';
         video.style.opacity = '';                            // clear inline opacity from the fade-in
-        video.style.boxShadow = '';                          // clear inline player shadow (corner shadow is on .reel-thumb)
         thumb.appendChild(video);                            // re-home into the corner (no visual jump)
         thumb.style.height = '';                             // release the reserved space
         thumb.style.visibility = '';                         // show the corner again
