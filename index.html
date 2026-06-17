@@ -319,51 +319,59 @@
     function open() {
       if (lb.classList.contains('active')) return;
       clearHandlers();
-      var first = video.getBoundingClientRect();          // corner (small)
+      clearUnmute();
+      if (fadeRAF) { cancelAnimationFrame(fadeRAF); fadeRAF = null; }
+
+      var first = video.getBoundingClientRect();           // corner (small)
       lb.classList.add('active');
-      thumb.style.height = thumb.offsetHeight + 'px';     // reserve the corner's space so flow doesn't shift (mobile)
-      thumb.style.visibility = 'hidden';                  // hide the now-empty corner so its shadow doesn't ghost
-      stage.insertBefore(video, controls);                // re-parent into centered stage (keeps playing)
+      thumb.style.height = thumb.offsetHeight + 'px';      // reserve the corner's space so flow doesn't shift (mobile)
+      thumb.style.visibility = 'hidden';                   // hide the now-empty corner so its shadow doesn't ghost
+      stage.insertBefore(video, controls);                 // re-parent into centered stage (keeps playing)
       video.style.transition = 'none';
       video.style.transform = 'none';
-      var last = video.getBoundingClientRect();            // full, centered
-      video.style.transform = deltaTransform(first, last); // appear back at the corner
-      video.style.opacity = '0';                           // start transparent — fade the start frame in
+      var last = video.getBoundingClientRect();             // full, centered
+      video.style.transform = deltaTransform(first, last);  // collapsed over the corner
+      video.style.opacity = '0';                            // hidden until the start frame is ready
       void video.offsetWidth;
-      requestAnimationFrame(function () {
-        video.style.transition = EASE;
-        video.style.transform = 'none';                    // grow to full
-        video.style.opacity = '1';                         // fade in (masks the seek-to-0 cut)
-        backdrop.classList.add('show');
-      });
 
-      if (fadeRAF) { cancelAnimationFrame(fadeRAF); fadeRAF = null; }
-      clearUnmute();
-      video.volume = 1;
-      muteBtn.textContent = 'Mute';
-      if (video.currentTime > 0.05) {
-        // seek to the start while muted, then unmute once the seek lands —
-        // avoids a blip of audio from the old loop position
-        video.muted = true;
-        unmuteHandler = function () { clearUnmute(); video.muted = false; };
-        video.addEventListener('seeked', unmuteHandler);
-        unmuteTimer = setTimeout(unmuteHandler, 500); // fallback if 'seeked' never fires
-        video.currentTime = 0;
-      } else {
-        video.muted = false;
-      }
-      resume();
+      // backdrop blurs in immediately so the click feels instant
+      backdrop.classList.add('show');
       lb.setAttribute('aria-hidden', 'false');
       document.body.style.overflow = 'hidden';
 
-      endHandler = function (e) {
-        if (e.target === video && e.propertyName === 'transform') {
-          lb.classList.add('controls-on');
-          clearHandlers();
-        }
-      };
-      video.addEventListener('transitionend', endHandler);
-      safety = setTimeout(function () { lb.classList.add('controls-on'); clearHandlers(); }, 750);
+      video.volume = 1;
+      video.muted = true;
+      muteBtn.textContent = 'Mute';
+      resume();
+
+      // grow + fade the start frame in (run only once the video is actually at frame 0)
+      function grow() {
+        requestAnimationFrame(function () {
+          video.style.transition = EASE;                   // transform + opacity
+          video.style.transform = 'none';                  // grow to full
+          video.style.opacity = '1';                       // fade the start frame in
+        });
+        video.muted = false;                               // already at frame 0, no audio blip
+        endHandler = function (e) {
+          if (e.target === video && e.propertyName === 'transform') {
+            lb.classList.add('controls-on');
+            clearHandlers();
+          }
+        };
+        video.addEventListener('transitionend', endHandler);
+        safety = setTimeout(function () { lb.classList.add('controls-on'); clearHandlers(); }, 800);
+      }
+
+      if (video.currentTime > 0.05) {
+        // seek to the start WHILE HIDDEN, then grow — the seek stutter never shows on screen
+        var fb;
+        var onSeeked = function () { video.removeEventListener('seeked', onSeeked); clearTimeout(fb); grow(); };
+        fb = setTimeout(function () { video.removeEventListener('seeked', onSeeked); grow(); }, 400);
+        video.addEventListener('seeked', onSeeked);
+        try { video.currentTime = 0; } catch (e) { clearTimeout(fb); video.removeEventListener('seeked', onSeeked); grow(); }
+      } else {
+        grow();
+      }
     }
 
     function close() {
