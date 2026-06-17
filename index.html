@@ -427,6 +427,17 @@
     });
     video.addEventListener('timeupdate', updateTime);
     video.addEventListener('loadedmetadata', updateTime);
+
+    // iOS pauses the video when the tab is backgrounded — resume it when we come back
+    function resumeIfVisible() {
+      if (document.visibilityState === 'visible' && video.paused) {
+        var p = video.play();
+        if (p && p.catch) p.catch(function () {});
+      }
+    }
+    document.addEventListener('visibilitychange', resumeIfVisible);
+    window.addEventListener('pageshow', resumeIfVisible);
+    window.addEventListener('focus', resumeIfVisible);
   })();
   </script>
 
