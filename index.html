@@ -138,6 +138,13 @@
     transform-origin: center center;
     will-change: transform;
   }
+  /* hide iOS Safari's native "tap to play" overlay */
+  #reelVideo::-webkit-media-controls-start-playback-button,
+  #reelVideo::-webkit-media-controls-play-button,
+  #reelVideo::-webkit-media-controls {
+    display: none !important;
+    -webkit-appearance: none;
+  }
   .reel-thumb {
     position: fixed;
     top: 24px;
