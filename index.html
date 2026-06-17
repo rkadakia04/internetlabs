@@ -342,6 +342,7 @@
 
       var first = video.getBoundingClientRect();           // corner (small)
       lb.classList.add('active');
+      video.style.opacity = '1';                           // ensure visible when expanding (corner may be at 0 in Low Power)
       thumb.style.height = thumb.offsetHeight + 'px';      // reserve the corner's space so flow doesn't shift (mobile)
       thumb.style.visibility = 'hidden';                   // hide the now-empty corner so its shadow doesn't ghost
       stage.insertBefore(video, controls);                 // re-parent into centered stage (keeps playing)
@@ -443,11 +444,25 @@
 
     // poster overlay: visible whenever the video isn't actually playing (covers iOS's play button in Low Power Mode)
     var poster = document.getElementById('reelPoster');
-    function showPoster() { if (poster) poster.style.opacity = '1'; }
-    function hidePoster() { if (poster) poster.style.opacity = '0'; }
-    video.addEventListener('playing', hidePoster);
-    video.addEventListener('pause', showPoster);
-    video.addEventListener('ended', showPoster);
+    // The iOS play button is part of the <video> element and is drawn above the page, so the poster
+    // can't cover it. But opacity:0 hides the WHOLE element (button included), and a muted video still
+    // plays via explicit play(). So: keep the corner video at opacity 0 (poster shows the frame), and
+    // only fade it in once it's actually playing. In Low Power Mode it never plays -> no button, ever.
+    function reelLive() {
+      video.style.opacity = '1';
+      if (poster) poster.style.opacity = '0';
+    }
+    function reelStill() {
+      if (lb.classList.contains('active')) return; // expanded: keep the video visible
+      video.style.opacity = '0';
+      if (poster) poster.style.opacity = '1';
+    }
+    video.style.opacity = '0';                  // start hidden behind the poster (kills the play button)
+    video.addEventListener('playing', reelLive);
+    video.addEventListener('pause', reelStill);
+    video.addEventListener('ended', reelStill);
+    var pq = video.play();                       // muted play() works regardless of opacity
+    if (pq && pq.catch) pq.catch(reelStill);
 
     // iOS pauses the video when the tab is backgrounded — resume it when we come back
     function resumeIfVisible() {
