@@ -265,7 +265,7 @@
     var restartBtn = document.getElementById('reelRestart');
     if (!thumb || !lb || !stage || !video) return;
 
-    var EASE = 'transform 0.55s cubic-bezier(0.22, 1, 0.36, 1)';
+    var EASE = 'transform 0.55s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.45s ease';
     var endHandler = null;
     var safety = null;
     var fadeRAF = null;
@@ -328,10 +328,12 @@
       video.style.transform = 'none';
       var last = video.getBoundingClientRect();            // full, centered
       video.style.transform = deltaTransform(first, last); // appear back at the corner
+      video.style.opacity = '0';                           // start transparent — fade the start frame in
       void video.offsetWidth;
       requestAnimationFrame(function () {
         video.style.transition = EASE;
         video.style.transform = 'none';                    // grow to full
+        video.style.opacity = '1';                         // fade in (masks the seek-to-0 cut)
         backdrop.classList.add('show');
       });
 
@@ -374,6 +376,7 @@
       var target = { left: t.left, top: t.top, width: t.width, height: t.width * ratio };
       video.style.transition = 'none';
       video.style.transform = 'none';
+      video.style.opacity = '1';                             // ensure visible (in case closed mid fade-in)
       void video.offsetWidth;
       requestAnimationFrame(function () {
         video.style.transition = EASE;
@@ -389,6 +392,7 @@
         document.body.style.overflow = '';
         video.style.transition = 'none';
         video.style.transform = 'none';
+        video.style.opacity = '';                            // clear inline opacity from the fade-in
         thumb.appendChild(video);                            // re-home into the corner (no visual jump)
         thumb.style.height = '';                             // release the reserved space
         thumb.style.visibility = '';                         // show the corner again
