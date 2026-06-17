@@ -222,7 +222,7 @@
   <ul>
     <li>⛳ <a href="https://imessagegolf.com" target="_blank" rel="noopener">golf</a> — minigolf in iMessage</li>
     <li>🌱 <a href="https://apps.apple.com/us/app/plant-self-care/id6760047919" target="_blank" rel="noopener">plant</a> — gamified self care</li>
-    <li>🍄 <a href="#" target="_blank" rel="noopener">bodega</a> — brain fog gummies *discontinued*</li>
+    <li>🍄 <a href="#" target="_blank" rel="noopener">bodega</a> — brain fog gummies *inactive*</li>
   </ul>
 
   <div class="reel-thumb" id="reelThumb" role="button" tabindex="0" aria-label="Play reel">
@@ -331,47 +331,29 @@
       video.style.transform = 'none';
       var last = video.getBoundingClientRect();             // full, centered
       video.style.transform = deltaTransform(first, last);  // collapsed over the corner
-      video.style.opacity = '0';                            // hidden until the start frame is ready
       void video.offsetWidth;
+      // grow from the current frame — no seek, so nothing stutters during the animation
+      requestAnimationFrame(function () {
+        video.style.transition = EASE;
+        video.style.transform = 'none';
+        backdrop.classList.add('show');
+      });
 
-      // backdrop blurs in immediately so the click feels instant
-      backdrop.classList.add('show');
+      video.volume = 1;
+      video.muted = false;
+      muteBtn.textContent = 'Mute';
+      resume();
       lb.setAttribute('aria-hidden', 'false');
       document.body.style.overflow = 'hidden';
 
-      video.volume = 1;
-      video.muted = true;
-      muteBtn.textContent = 'Mute';
-      resume();
-
-      // grow + fade the start frame in (run only once the video is actually at frame 0)
-      function grow() {
-        requestAnimationFrame(function () {
-          video.style.transition = EASE;                   // transform + opacity
-          video.style.transform = 'none';                  // grow to full
-          video.style.opacity = '1';                       // fade the start frame in
-        });
-        video.muted = false;                               // already at frame 0, no audio blip
-        endHandler = function (e) {
-          if (e.target === video && e.propertyName === 'transform') {
-            lb.classList.add('controls-on');
-            clearHandlers();
-          }
-        };
-        video.addEventListener('transitionend', endHandler);
-        safety = setTimeout(function () { lb.classList.add('controls-on'); clearHandlers(); }, 800);
-      }
-
-      if (video.currentTime > 0.05) {
-        // seek to the start WHILE HIDDEN, then grow — the seek stutter never shows on screen
-        var fb;
-        var onSeeked = function () { video.removeEventListener('seeked', onSeeked); clearTimeout(fb); grow(); };
-        fb = setTimeout(function () { video.removeEventListener('seeked', onSeeked); grow(); }, 400);
-        video.addEventListener('seeked', onSeeked);
-        try { video.currentTime = 0; } catch (e) { clearTimeout(fb); video.removeEventListener('seeked', onSeeked); grow(); }
-      } else {
-        grow();
-      }
+      endHandler = function (e) {
+        if (e.target === video && e.propertyName === 'transform') {
+          lb.classList.add('controls-on');
+          clearHandlers();
+        }
+      };
+      video.addEventListener('transitionend', endHandler);
+      safety = setTimeout(function () { lb.classList.add('controls-on'); clearHandlers(); }, 800);
     }
 
     function close() {
