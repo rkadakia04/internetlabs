@@ -74,6 +74,8 @@
   li { margin-bottom: 7px; }
   a { color: #1a52e0; text-decoration: none; }
   a:hover { text-decoration: underline; }
+  .live { text-decoration: underline; }              /* real, active links */
+  .inactive { color: #1a52e0; text-decoration: none; cursor: default; } /* blue but not a link */
   .intro { max-width: 360px; }
   .akira {
     position: fixed;
@@ -227,9 +229,9 @@
   <p class="intro">We are a creative venture company, and we own a portfolio of both physical and digital products with the aim of reaching millions of people and influencing culture.</p>
 
   <ul>
-    <li>⛳ <a href="https://imessagegolf.com" target="_blank" rel="noopener">golf</a> — minigolf in iMessage</li>
-    <li>🌱 <a href="https://apps.apple.com/us/app/plant-self-care/id6760047919" target="_blank" rel="noopener">plant</a> — gamified self care</li>
-    <li>🍄 <a href="#" target="_blank" rel="noopener">bodega</a> — brain fog gummies *inactive*</li>
+    <li>⛳ <a class="live" href="https://imessagegolf.com" target="_blank" rel="noopener">golf</a> — minigolf in iMessage</li>
+    <li>🌱 <a class="live" href="https://apps.apple.com/us/app/plant-self-care/id6760047919" target="_blank" rel="noopener">plant</a> — gamified self care</li>
+    <li>🍄 <span class="inactive">bodega</span> — brain fog gummies *inactive*</li>
   </ul>
 
   <div class="reel-thumb" id="reelThumb" role="button" tabindex="0" aria-label="Play reel">
@@ -238,7 +240,7 @@
 
   <p class="hiring">Looking for NYC based product designers, iOS developers, and growth partners.</p>
 
-  <p>Contact:<br><a href="mailto:hi@internetlabs.co">hi@internetlabs.co</a></p>
+  <p>Contact:<br><a class="live" href="mailto:hi@internetlabs.co">hi@internetlabs.co</a></p>
 
   <figure class="akira">
     <a class="gif-link" href="https://google.com" target="_blank" rel="noopener"><img class="gifimg" src="akira.gif?v=6" alt="Akira" /></a>
