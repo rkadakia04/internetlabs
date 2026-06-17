@@ -182,7 +182,6 @@
     position: relative; z-index: 1;
     width: min(1100px, 92vw);
   }
-  .reel-stage #reelVideo { box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25); }
   .reel-controls {
     display: flex; justify-content: space-between; align-items: center;
     margin-top: 10px; font-size: 13px; color: #666;
@@ -265,7 +264,13 @@
     var restartBtn = document.getElementById('reelRestart');
     if (!thumb || !lb || !stage || !video) return;
 
-    var EASE = 'transform 0.55s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.45s ease';
+    var EASE = 'transform 0.55s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.45s ease, box-shadow 0.55s cubic-bezier(0.22, 1, 0.36, 1)';
+    var SH_FULL = '0 20px 60px rgba(0, 0, 0, 0.25)';
+    // a shadow that RENDERS as the corner shadow (0 4px 14px / .10) once the transform scales it by `scale`
+    function shadowAtCornerScale(scale) {
+      var s = scale > 0.01 ? scale : 1;
+      return '0 ' + (4 / s).toFixed(2) + 'px ' + (14 / s).toFixed(2) + 'px rgba(0, 0, 0, 0.1)';
+    }
     var endHandler = null;
     var safety = null;
     var fadeRAF = null;
@@ -330,12 +335,15 @@
       video.style.transition = 'none';
       video.style.transform = 'none';
       var last = video.getBoundingClientRect();             // full, centered
+      var s = first.width / last.width;                     // collapsed scale (corner / full)
       video.style.transform = deltaTransform(first, last);  // collapsed over the corner
+      video.style.boxShadow = shadowAtCornerScale(s);       // starts rendering as the corner shadow
       void video.offsetWidth;
       // grow from the current frame — no seek, so nothing stutters during the animation
       requestAnimationFrame(function () {
         video.style.transition = EASE;
         video.style.transform = 'none';
+        video.style.boxShadow = SH_FULL;                    // grows into the full player shadow
         backdrop.classList.add('show');
       });
 
@@ -364,6 +372,7 @@
       var t = thumb.getBoundingClientRect();                // corner home (empty -> zero height)
       var ratio = first.height / first.width;
       var target = { left: t.left, top: t.top, width: t.width, height: t.width * ratio };
+      var s = target.width / first.width;                    // collapsed scale (corner / full)
       video.style.transition = 'none';
       video.style.transform = 'none';
       video.style.opacity = '1';                             // ensure visible (in case closed mid fade-in)
@@ -371,6 +380,7 @@
       requestAnimationFrame(function () {
         video.style.transition = EASE;
         video.style.transform = deltaTransform(target, first); // shrink toward the corner
+        video.style.boxShadow = shadowAtCornerScale(s);        // shrinks to render as the corner shadow
         backdrop.classList.remove('show');
       });
       fadeVolume(video.volume, 0, 520);                      // fade the audio out as it collapses
@@ -383,6 +393,7 @@
         video.style.transition = 'none';
         video.style.transform = 'none';
         video.style.opacity = '';                            // clear inline opacity from the fade-in
+        video.style.boxShadow = '';                          // hand the corner shadow back to .reel-thumb (seamless)
         thumb.appendChild(video);                            // re-home into the corner (no visual jump)
         thumb.style.height = '';                             // release the reserved space
         thumb.style.visibility = '';                         // show the corner again
