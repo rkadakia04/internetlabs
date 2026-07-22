@@ -34,6 +34,15 @@
     margin-left: 2px;
     vertical-align: -1px;
   }
+  @keyframes caretHop {
+    0%   { transform: translateY(0); }
+    15%  { transform: translateY(-5.1px); }
+    30%  { transform: translateY(-8.4px); }
+    50%  { transform: translateY(-10px); }
+    70%  { transform: translateY(-8.4px); }
+    85%  { transform: translateY(-5.1px); }
+    100% { transform: translateY(0); }
+  }
   body {
     font-family: ui-monospace, "SF Mono", SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
     color: #666;
@@ -58,6 +67,8 @@
     font-size: 22px;
     color: #000;
   }
+  h1 a { color: inherit; text-decoration: none; }
+  h1 a:hover { text-decoration: none; }
   h2 { margin: 0 0 22px; }
   p { margin: 0 0 26px; max-width: 360px; }
   hr {
@@ -69,13 +80,13 @@
   ul {
     list-style: none;
     padding-left: 0;
-    margin: 0;
+    margin: 0 0 26px;
   }
   li { margin-bottom: 7px; }
   a { color: #1a52e0; text-decoration: none; }
   a:hover { text-decoration: underline; }
   .live { text-decoration: underline; }              /* real, active links */
-  .inactive { color: #1a52e0; text-decoration: none; cursor: default; } /* blue but not a link */
+  .inactive { color: #666; text-decoration: none; cursor: default; } /* gray — not a link */
   .intro { max-width: 360px; }
   .akira {
     position: fixed;
@@ -223,18 +234,20 @@
 </head>
 <body>
 
-  <h1>internet</h1>
+  <h1><a href="index.html">internet</a></h1>
 
   <p class="intro">Internet is the company that builds companies. We build beautiful, viral consumer software and products.</p>
 
-  <p class="intro">We are a creative venture company that owns a portfolio of physical and digital products with the aim of reaching millions of people and influencing culture.</p>
+  <p class="intro">We own a portfolio of physical and digital products with the aim of influencing culture.</p>
 
   <ul>
     <li>🐾 <a class="live" href="https://pawshealth.co" target="_blank" rel="noopener">paws</a> — your pet, wrapped</li>
     <li>⛳ <a class="live" href="https://imessagegolf.com" target="_blank" rel="noopener">golf</a> — minigolf in iMessage</li>
-    <li>🌱 <span class="inactive">plant</span> — gamified self care</li>
+    <li>🌱 <a class="live" href="https://apps.apple.com/us/app/plant-self-care/id6760047919" target="_blank" rel="noopener">plant</a> — gamified self care</li>
     <li>🍄 <span class="inactive">bodega</span> — brain fog gummies *inactive*</li>
   </ul>
+
+  <p class="intro">We can create for you too. <a class="live" href="create">Learn more</a>.</p>
 
   <div class="reel-thumb" id="reelThumb" role="button" tabindex="0" aria-label="Play reel">
     <video id="reelVideo" src="reel.mp4?v=2" poster="poster.jpg?v=2" muted loop autoplay playsinline preload="auto"></video>
@@ -484,26 +497,23 @@
         var sleep = function (ms) { return new Promise(function (r) { setTimeout(r, ms); }); };
         var caret = document.createElement('span');
         caret.className = 'caret';
-        var SPEED = 15;
         var LOGO_SPEED = 220;
 
-        var blocks = Array.prototype.filter.call(document.body.children, function (el) {
-          return el.tagName !== 'FIGURE' && el.tagName !== 'SCRIPT' &&
-                 !el.classList.contains('reel-thumb') && !el.classList.contains('reel-lightbox');
-        });
-        var figure = document.querySelector('.akira');
-        var reelThumb = document.querySelector('.reel-thumb');
+        var logo = document.querySelector('h1');
         var reelVideo = document.getElementById('reelVideo');
 
-        // snapshot original content, then empty each block
-        var originals = blocks.map(function (b) {
-          return Array.prototype.map.call(b.childNodes, function (n) { return n.cloneNode(true); });
+        // only the logo types out; everything else fades in together once it lands
+        var fadeEls = Array.prototype.filter.call(document.body.children, function (el) {
+          return el !== logo && el.tagName !== 'SCRIPT';
         });
-        blocks.forEach(function (b) { b.innerHTML = ''; });
-        // hide instantly (transition off) so they don't visibly fade out at reveal
-        if (figure) { figure.style.transition = 'none'; figure.style.opacity = '0'; }
-        if (reelThumb) { reelThumb.style.transition = 'none'; reelThumb.style.opacity = '0'; reelThumb.style.filter = 'blur(10px)'; }
-        reveal(); // content is now empty — safe to show
+
+        // snapshot the logo's content, then empty just the logo
+        var logoOriginal = Array.prototype.map.call(logo.childNodes, function (n) { return n.cloneNode(true); });
+        logo.innerHTML = '';
+
+        // hide everything else instantly (transition off) so nothing flashes at reveal
+        fadeEls.forEach(function (el) { el.style.transition = 'none'; el.style.opacity = '0'; });
+        reveal(); // logo is empty, rest is hidden — safe to show
 
         function typeInto(srcNodes, target, speed) {
           return srcNodes.reduce(function (p, child) {
@@ -530,65 +540,40 @@
           }, Promise.resolve());
         }
 
-        // on small screens the reel sits in-flow under the products, so reveal it there (chronological);
-        // on desktop it's a fixed corner, so reveal it at the end with the gif
-        var isMobile = window.matchMedia && window.matchMedia('(max-width: 1024px)').matches;
-        var reelDone = false;
-        function revealReel() {
-          if (reelDone || !reelThumb) return;
-          reelDone = true;
-          function doReveal() {
-            reelThumb.style.transition = 'opacity 0.6s ease, filter 0.6s ease';
-            reelThumb.style.opacity = '1';
-            reelThumb.style.filter = 'blur(0px)';
-            setTimeout(function () {
-              reelThumb.style.transition = '';
-              reelThumb.style.opacity = '';
-              reelThumb.style.filter = '';
-            }, 700);
-          }
-          if (reelVideo) {
-            // force playback now that it's about to show — dismisses iOS's autoplay-blocked play button
-            var pp = reelVideo.play && reelVideo.play();
-            if (pp && pp.catch) pp.catch(function () {});
-            if (reelVideo.currentTime > 0.05) {
-              // the loop drifted while hidden — seek to the start BEFORE revealing so the first
-              // frame is what appears (not a random frame that then jumps to 0)
-              var fb;
-              var onSeeked = function () {
-                reelVideo.removeEventListener('seeked', onSeeked);
-                clearTimeout(fb);
-                doReveal();
-              };
-              fb = setTimeout(function () { reelVideo.removeEventListener('seeked', onSeeked); doReveal(); }, 400);
-              reelVideo.addEventListener('seeked', onSeeked);
-              try { reelVideo.currentTime = 0; } catch (e) { clearTimeout(fb); reelVideo.removeEventListener('seeked', onSeeked); doReveal(); }
-            } else {
-              doReveal();
-            }
-          } else {
-            doReveal();
-          }
+        // one cute hop of the caret after the logo lands — a single beat before the fade
+        function hopCaretOnce() {
+          return sleep(180).then(function () {
+            return new Promise(function (res) {
+              var done = false;
+              function finish() { if (done) return; done = true; caret.removeEventListener('animationend', finish); res(); }
+              caret.addEventListener('animationend', finish);
+              caret.style.animation = 'caretHop 0.34s linear 1';
+              setTimeout(finish, 500); // safety
+            });
+          });
         }
 
-        var chain = sleep(1300); // hold on a blank page before the logo starts typing
-        blocks.forEach(function (b, i) {
-          var speed = i === 0 ? LOGO_SPEED : SPEED;
-          chain = chain.then(function () { return typeInto(originals[i], b, speed); });
-          if (isMobile && reelThumb && b === reelThumb.previousElementSibling) {
-            chain = chain.then(function () { revealReel(); });
-          }
-        });
-        chain.then(function () {
-          if (caret.parentNode) { caret.parentNode.removeChild(caret); }
-          if (figure) {
-            figure.style.transition = 'opacity 1.8s ease';
-            figure.style.opacity = '1';
-            // after the reveal, drop the inline opacity so CSS hover-dimming can take over
-            setTimeout(function () { figure.style.transition = ''; figure.style.opacity = ''; }, 1850);
-          }
-          revealReel(); // desktop / fallback: reveal with the gif at the end
-        });
+        sleep(1300)                                    // hold on a blank page before the logo types
+          .then(function () { return typeInto(logoOriginal, logo, LOGO_SPEED); })
+          .then(hopCaretOnce)
+          .then(function () { return sleep(500); })   // let it rest a beat after the hop before fading in
+          .then(function () {
+            if (caret.parentNode) { caret.parentNode.removeChild(caret); }
+            // fade the rest of the screen in together
+            fadeEls.forEach(function (el) {
+              el.style.transition = 'opacity 1.3s ease';
+              el.style.opacity = '1';
+            });
+            // drop inline styles afterward so CSS (hover-dimming, etc.) can take over
+            setTimeout(function () {
+              fadeEls.forEach(function (el) { el.style.transition = ''; el.style.opacity = ''; });
+            }, 1350);
+            // make sure the reel is actually playing once it appears
+            if (reelVideo) {
+              var pp = reelVideo.play && reelVideo.play();
+              if (pp && pp.catch) pp.catch(function () {});
+            }
+          });
       } catch (e) {
         reveal();
       }
