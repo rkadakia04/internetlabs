@@ -117,7 +117,19 @@
       "Bash(pdftotext -layout -f 2 -l 73 \"/Users/yyz/Downloads/21 things we like, Internet.pdf\" pdftext.txt)",
       "Bash(sed -n '1,60p' pdftext.txt)",
       "Bash(git -c user.name='rkadakia04' -c user.email='rkadakia04@gmail.com' commit -qm \"Replace 21-things-we-like.pdf with updated version\")",
-      "Bash(git -c user.name='rkadakia04' -c user.email='rkadakia04@gmail.com' commit -qm \"Swap in new reel video + poster \\(cache-bust v2\\)\")"
+      "Bash(git -c user.name='rkadakia04' -c user.email='rkadakia04@gmail.com' commit -qm \"Swap in new reel video + poster \\(cache-bust v2\\)\")",
+      "Bash(git -c user.name='rkadakia04' -c user.email='rkadakia04@gmail.com' commit -qm \"Unlink plant \\(blue, non-clickable\\); drop private tag\")",
+      "Bash(rm -rf /tmp/*.html /tmp/pdftext.txt /tmp/figma_og.png /tmp/folder_full.png /tmp/palette*.png /tmp/l.html /tmp/l3.html /tmp/live*.html)",
+      "Bash(brew cleanup *)",
+      "Bash(git -c user.name='rkadakia04' -c user.email='rkadakia04@gmail.com' commit -qm \"Add paws product \\(top of list, links to pawshealth.co\\)\")",
+      "Bash(git -c user.name='rkadakia04' -c user.email='rkadakia04@gmail.com' commit -qm \"Update footer to Internet Companies, Inc.\")",
+      "Bash(git fetch *)",
+      "Bash(git -c user.name='rkadakia04' -c user.email='rkadakia04@gmail.com' commit -qm \"Add /create consulting page; refresh homepage \\(reorder, copy, links, animation\\)\")",
+      "Bash(git -c user.name='rkadakia04' -c user.email='rkadakia04@gmail.com' commit -qm \"Drop *inactive* tag from bodega\")",
+      "Bash(git -c user.name='rkadakia04' -c user.email='rkadakia04@gmail.com' commit -qm \"Prevent line-wrap orphans on mobile \\(text-wrap: pretty\\)\")",
+      "Bash(git -c user.name='rkadakia04' -c user.email='rkadakia04@gmail.com' commit -qm \"Guarantee no orphan on 'influencing culture' via non-breaking space\")",
+      "Bash(git -c user.name='rkadakia04' -c user.email='rkadakia04@gmail.com' commit -qm \"Lower starting price to \\\\$25,000\")",
+      "Bash(python3 -c \"import sys,json; d=json.load\\(sys.stdin\\); print\\('source branch:', d.get\\('source',{}\\).get\\('branch'\\), '| path:', d.get\\('source',{}\\).get\\('path'\\), '| build_type:', d.get\\('build_type'\\), '| url:', d.get\\('html_url'\\)\\)\")"
     ]
   }
 }

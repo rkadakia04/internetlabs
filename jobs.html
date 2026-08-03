@@ -2,23 +2,26 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- Lay out at a fixed 470px and let the browser pick the scale that fits the screen,
+     so mobile is a proportional copy of the desktop layout rather than a rewrapped one.
+     Matches index.html so type does not change size as you move between pages. -->
+<meta name="viewport" content="width=470">
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
 <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png">
 <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
 <script>document.documentElement.classList.add('js-typing');</script>
-<title>Internet — Create</title>
-<meta name="description" content="Internet builds products for a few outside partners each year.">
+<title>Internet — Jobs</title>
+<meta name="description" content="Open roles at Internet. NYC based.">
 <meta property="og:type" content="website">
-<meta property="og:url" content="https://internetlabs.co/create">
-<meta property="og:title" content="Internet — Create">
-<meta property="og:description" content="Internet builds products for a few outside partners each year.">
+<meta property="og:url" content="https://internetlabs.co/jobs">
+<meta property="og:title" content="Internet — Jobs">
+<meta property="og:description" content="Open roles at Internet. NYC based.">
 <meta property="og:image" content="https://internetlabs.co/og.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Internet — Create">
-<meta name="twitter:description" content="Internet builds products for a few outside partners each year.">
+<meta name="twitter:title" content="Internet — Jobs">
+<meta name="twitter:description" content="Open roles at Internet. NYC based.">
 <meta name="twitter:image" content="https://internetlabs.co/og.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -28,10 +31,10 @@
   html.js-typing body { visibility: hidden; }
   .caret {
     display: inline-block;
-    width: 7px;
-    height: 1em;
+    width: 13px;
+    height: 0.78em;
     background: #000;
-    margin-left: 2px;
+    margin-left: 3px;
     vertical-align: -1px;
   }
   @keyframes caretHop {
@@ -42,6 +45,10 @@
     70%  { transform: translateY(-8.4px); }
     85%  { transform: translateY(-5.1px); }
     100% { transform: translateY(0); }
+  }
+  :root {
+    --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    --card: #f5f5f5;
   }
   body {
     font-family: ui-monospace, "SF Mono", SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
@@ -71,8 +78,40 @@
   a { color: #1a52e0; text-decoration: none; }
   a:hover { text-decoration: underline; }
   .live { text-decoration: underline; }
+
+  /* roles — same two-step grey and chip treatment as the work captions on the homepage */
+  .roles { margin: 40px 0 0; }
+  .role { margin: 0 0 40px; }
+  .role:last-of-type { margin-bottom: 0; }
+  .role .name {
+    display: block;
+    color: #666;
+    font-size: 13px;
+    line-height: 1.6;
+  }
+  .role .desc {
+    display: block;
+    margin-top: 2px;
+    max-width: 360px;
+    color: #aaa;
+    font-size: 13px;
+    line-height: 1.6;
+    text-wrap: pretty;
+  }
+  .tags { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
+  .tag {
+    font-family: var(--sans);     /* chips stay sans, like the homepage */
+    letter-spacing: 0;
+    font-size: 13px;
+    line-height: 1;
+    padding: 9px 18px;
+    border-radius: 7px;
+    background: var(--card);
+    color: #555;
+  }
+  .outro { margin-top: 48px; }
   @media (max-width: 1024px) {
-    .intro, p { max-width: 330px; }
+    .intro, p, .role .desc { max-width: 330px; }
   }
 </style>
 </head>
@@ -80,19 +119,31 @@
 
   <h1><a href="index.html">internet</a></h1>
 
-  <p class="intro">Internet builds products for a handful of partners each year.</p>
+  <p class="intro">We’re looking to work with the following roles in New York and around the&nbsp;world.</p>
 
-  <p class="intro">We take products from 0 → 1, the same exact way we build our own:</p>
+  <div class="roles">
 
-  <p class="intro">Concept: We’ll ideate for you.<br>Design: We’ll create for you.<br>Development: We’ll engineer for you.<br>Strategy: We’ll go viral for you.</p>
+    <div class="role">
+      <span class="name">Product Designer</span>
+      <span class="desc">You can design beautiful UI and UX.</span>
+      <span class="tags"><span class="tag">Contract</span><span class="tag">NYC</span></span>
+    </div>
 
-  <p class="intro">We work as a team, and can handle strategy, product design, engineering, and go-to-market as one motion.</p>
+    <div class="role">
+      <span class="name">iOS Developer</span>
+      <span class="desc">You can translate designs into code.</span>
+      <span class="tags"><span class="tag">Contract</span><span class="tag">NYC</span></span>
+    </div>
 
-  <p class="intro">Take everything, or just what you need.</p>
+    <div class="role">
+      <span class="name">Growth Operator</span>
+      <span class="desc">You can spread our portfolio of products.</span>
+      <span class="tags"><span class="tag">Contract</span><span class="tag">NYC</span></span>
+    </div>
 
-  <p class="intro">Pricing varies based on your needs, but starts at $25,000.</p>
+  </div>
 
-  <p class="intro">For all inquiries: <a class="live" href="mailto:hi@internetlabs.co">hi@internetlabs.co</a>.</p>
+  <p class="intro outro">To apply, email <a class="live" href="mailto:hi@internetlabs.co">hi@internetlabs.co</a>.</p>
 
   <script>
   (function () {
@@ -121,7 +172,17 @@
 
         // hide everything else instantly (transition off) so nothing flashes at reveal
         fadeEls.forEach(function (el) { el.style.transition = 'none'; el.style.opacity = '0'; });
-        reveal(); // logo is empty, rest is hidden — safe to show
+
+        // float the (empty) logo to dead-center of the screen, bigger — sized with font-size so it
+        // stays crisp (a transform: scale would blur it during the caret hop). inset:0 + margin:auto
+        // centers it on both axes with no transform at all.
+        logo.style.position = 'fixed';
+        logo.style.inset = '0';
+        logo.style.margin = 'auto';
+        logo.style.width = 'fit-content';
+        logo.style.height = 'fit-content';
+        logo.style.fontSize = '44px';
+        reveal(); // logo is centered & empty, rest is hidden — safe to show
 
         function typeInto(srcNodes, target, speed) {
           return srcNodes.reduce(function (p, child) {
@@ -166,15 +227,28 @@
           .then(hopCaretOnce)
           .then(function () { return sleep(500); })   // let it rest a beat after the hop before fading in
           .then(function () {
-            if (caret.parentNode) { caret.parentNode.removeChild(caret); }
-            // fade the rest of the screen in together
-            fadeEls.forEach(function (el) {
-              el.style.transition = 'opacity 1.3s ease';
-              el.style.opacity = '1';
-            });
+            // no slide-to-corner: fade the centered splash out, then (while invisible) drop the logo
+            // back to its top-left home and fade it + the page in. Keep the caret through the fade-out —
+            // removing it here shrinks the margin:auto logo and shifts the text right just before fading.
+            logo.style.transition = 'opacity 0.3s ease';
+            logo.style.opacity = '0';
             setTimeout(function () {
-              fadeEls.forEach(function (el) { el.style.transition = ''; el.style.opacity = ''; });
-            }, 1350);
+              if (caret.parentNode) { caret.parentNode.removeChild(caret); }   // remove while invisible
+              logo.style.transition = 'none';
+              logo.style.position = ''; logo.style.inset = ''; logo.style.margin = '';
+              logo.style.width = ''; logo.style.height = ''; logo.style.fontSize = '';
+              void logo.offsetWidth;                       // commit the reset before fading back in
+              logo.style.transition = 'opacity 0.6s ease';
+              logo.style.opacity = '1';
+              fadeEls.forEach(function (el) {
+                el.style.transition = 'opacity 1.3s ease';
+                el.style.opacity = '1';
+              });
+              setTimeout(function () {
+                logo.style.transition = ''; logo.style.opacity = '';
+                fadeEls.forEach(function (el) { el.style.transition = ''; el.style.opacity = ''; });
+              }, 1350);
+            }, 310);
           });
       } catch (e) {
         reveal();

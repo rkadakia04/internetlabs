@@ -2,7 +2,10 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- Lay out at a fixed 470px and let the browser pick the scale that fits the screen,
+     so mobile is a proportional copy of the desktop layout rather than a rewrapped one.
+     No initial-scale here on purpose — pinning it to 1 renders at 1:1 and clips. -->
+<meta name="viewport" content="width=470">
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
 <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png">
 <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
@@ -28,10 +31,10 @@
   html.js-typing body { visibility: hidden; }
   .caret {
     display: inline-block;
-    width: 7px;
-    height: 1em;
+    width: 13px;
+    height: 0.78em;
     background: #000;
-    margin-left: 2px;
+    margin-left: 3px;
     vertical-align: -1px;
   }
   @keyframes caretHop {
@@ -43,13 +46,21 @@
     85%  { transform: translateY(-5.1px); }
     100% { transform: translateY(0); }
   }
+  :root {
+    /* one page gutter, shared by the text column, the nav and the work panel so they all line up */
+    --pad: 24px;
+    --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    --card: #f5f5f5;      /* work card / pill background */
+    --card-hi: #ededed;   /* same, one step darker — hover */
+  }
+  /* 24px everywhere — matches the live site. Bump this to widen the whole page gutter at once. */
   body {
     font-family: ui-monospace, "SF Mono", SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
     color: #666;
     background: #fff;
-    max-width: 480px;
+    max-width: 520px;
     margin: 0;
-    padding: 24px;
+    padding: var(--pad);
     font-size: 13px;
     line-height: 1.6;
     font-weight: normal;
@@ -83,15 +94,244 @@
     margin: 0 0 26px;
   }
   li { margin-bottom: 7px; }
+  /* quiet "view all" under the product list — the hooked arrow reads as a branch off the list */
+  .viewall { margin: -14px 0 26px; }
+  .viewall a {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: #aaa;
+    font-size: 12px;
+    text-decoration: none;
+    transition: color 0.2s ease;
+  }
+  .viewall a:hover { color: #1a52e0; text-decoration: none; }
+  .viewall a:hover .hook { transform: translateX(2px); }
+  .hook {
+    width: 13px;
+    height: 13px;
+    flex: none;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.5;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  /* nav pills — top-right on desktop, in flow under the logo on mobile */
+  /* Same links, two treatments. On mobile they're a menu surface, so they're pills.
+     On desktop they sit inside a column of mono prose, so they're text. */
+  .nav { margin: 0 0 34px; }
+  .nav-inner { display: flex; flex-wrap: wrap; gap: 10px; }
+  .menu-btn, .nav-backdrop { display: none; }         /* desktop: links are always out */
+
+  /* mobile: chips fold into a small menu button, pinned to the top right of the viewport */
+  @media (max-width: 1199px) {
+    .nav {
+      /* absolute, not fixed — it sits at the top of the document and scrolls away with it.
+         Anchored to the initial containing block, so `right` still means the screen edge. */
+      position: absolute;
+      top: var(--pad);
+      left: var(--pad);
+      right: var(--pad);
+      z-index: 30;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;    /* button and panel both hug the right edge */
+      pointer-events: none;     /* the empty strip must not swallow clicks on the logo */
+      font-family: var(--sans);
+      letter-spacing: 0;
+    }
+    /* pills — they read as UI here because the menu IS a UI surface */
+    .nav-inner a, .nav-inner span {
+      font-size: 14px;
+      line-height: 1;
+      padding: 10px 22px;
+      border-radius: 8px;
+      background: var(--card);
+      color: #333;
+      text-decoration: none;
+      transition: background 0.2s ease, color 0.2s ease;
+    }
+    .nav-inner a:hover { background: var(--card-hi); color: #000; text-decoration: none; }
+    .nav-inner span { color: #aaa; cursor: default; }   /* no page behind it yet */
+    .menu-btn, .nav-items { pointer-events: auto; position: relative; z-index: 1; }
+    /* the blurred backdrop does the separating now, so the panel itself stays transparent */
+    .nav-items { width: 100%; }
+    .nav-inner {
+      flex-direction: column;
+      align-items: flex-end;    /* stacked, right-aligned under the button */
+      margin-top: 12px;
+    }
+    .nav-backdrop {
+      display: block;
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      background: rgba(255, 255, 255, 0.6);
+      -webkit-backdrop-filter: blur(8px);
+      backdrop-filter: blur(8px);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.35s ease;
+    }
+    .nav.open .nav-backdrop { opacity: 1; pointer-events: auto; }
+    .menu-btn {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 5px;
+      width: 38px;
+      height: 38px;
+      padding: 0;
+      border: 0;
+      border-radius: 9px;
+      background: var(--card);
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .menu-btn i {
+      display: block;
+      width: 16px;
+      height: 1.5px;
+      margin: 0 auto;
+      background: #333;
+      border-radius: 1px;
+      transition: transform 0.34s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    /* the two bars cross into an x */
+    .nav.open .menu-btn i:nth-child(1) { transform: translateY(3.25px) rotate(45deg); }
+    .nav.open .menu-btn i:nth-child(2) { transform: translateY(-3.25px) rotate(-45deg); }
+
+    /* JS sets max-height to the measured content height, so this animates to the exact
+       size with no magic number and no dependence on how `1fr` resolves */
+    .nav-items {
+      overflow: hidden;
+      max-height: 0;
+      transition: max-height 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    .nav-inner > * {
+      opacity: 0;
+      transform: translateY(-6px);
+      transition: opacity 0.25s ease, transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    .nav:not(.open) .nav-inner > * { pointer-events: none; }
+    .nav.open .nav-inner > * { opacity: 1; transform: none; }
+    /* stagger so they arrive one after another rather than as a block */
+    .nav.open .nav-inner > *:nth-child(1) { transition-delay: 60ms; }
+    .nav.open .nav-inner > *:nth-child(2) { transition-delay: 115ms; }
+    .nav.open .nav-inner > *:nth-child(3) { transition-delay: 170ms; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .nav-items, .nav-inner > *, .menu-btn i { transition: none !important; }
+  }
+
+  /* work — cards in a grey tray, caption sits outside/below in sans */
+  .work {
+    display: flex;
+    flex-direction: column;
+    gap: 36px;      /* matches .work-cap's margin-top so the caption sits centred in the gap */
+    margin: 40px 0 0;
+    scrollbar-width: none;        /* Firefox */
+    -ms-overflow-style: none;     /* old Edge */
+  }
+  .work::-webkit-scrollbar { display: none; }   /* Safari / Chrome */
+  .work-item { margin: 0; }
+  .work-card {
+    background: var(--card);
+    border-radius: 18px;
+    padding: 20px;
+  }
+  /* the image IS the card — no tray around it */
+  .work-media {
+    display: block;
+    width: 100%;
+    aspect-ratio: 16 / 9;          /* 1920 x 1080 */
+    background: #e6e6e6;           /* shows through until the image decodes */
+    border-radius: 12px;
+    overflow: hidden;
+    object-fit: cover;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.10);   /* same as the reel thumb / gif */
+  }
+  /* captions are mono, same voice as the left column */
+  .work-cap { margin-top: 36px; }
+  .work-cap .name {
+    display: block;
+    color: #666;              /* same grey as the intro copy */
+    font-size: 13px;
+    line-height: 1.6;
+  }
+  .work-cap .desc {
+    display: block;
+    margin-top: 2px;
+    max-width: 430px;
+    color: #aaa;              /* same grey as the inactive nav links */
+    font-size: 13px;
+    line-height: 1.6;
+    text-wrap: pretty;
+  }
+  .tags { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
+  .tag {
+    font-family: var(--sans);     /* chips stay sans, like the nav pills */
+    letter-spacing: 0;
+    font-size: 13px;
+    line-height: 1;
+    padding: 9px 18px;
+    border-radius: 7px;
+    background: var(--card);
+    color: #555;
+  }
+  /* desktop: nav pins top-right, work is a fixed panel below it that scrolls on its own */
+  @media (min-width: 1200px) {
+    /* in flow in the left column, under the contact email — mono text, no chips,
+       so it reads as another line of the document rather than UI dropped into it */
+    .nav { margin: 26px 0 0; }
+    .nav-inner { gap: 18px; }
+    .nav-inner a, .nav-inner span {
+      font-size: 13px;
+      line-height: 1.6;
+      padding: 0;
+      background: none;
+      border-radius: 0;
+    }
+    /* all three sit quiet at the same grey; only a real link picks up colour on hover */
+    .nav-inner a, .nav-inner span { color: #aaa; }
+    .nav-inner a { text-decoration: none; }
+    .nav-inner a:hover { color: #1a52e0; text-decoration: underline; }
+    .nav-inner span { cursor: default; }
+    /* full-height scroller: the first card sits at 150px via padding, not a top edge, so the
+       stack keeps travelling up past the nav and off the top of the screen instead of clipping */
+    /* overflow-y:auto forces overflow-x to compute as auto too, so this panel clips
+       horizontally. Run it to the viewport edge and inset the cards with padding instead
+       of `right`, so card shadows have room to fall off before the clip boundary. */
+    .work {
+      position: fixed;
+      top: 0;
+      bottom: 0;
+      right: 0;
+      width: calc(min(560px, 44vw) + var(--pad) * 2);
+      margin: 0;
+      padding: var(--pad);          /* first card starts level with the logo */
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+    .work-item { width: 100%; }
+    /* more air between projects — both values move together so the caption stays
+       centred in the gap rather than drifting back toward the image above it */
+    .work { gap: 48px; }
+    .work-cap { margin-top: 48px; }
+  }
   a { color: #1a52e0; text-decoration: none; }
   a:hover { text-decoration: underline; }
   .live { text-decoration: underline; }              /* real, active links */
   .inactive { color: #666; text-decoration: none; cursor: default; } /* gray — not a link */
   .intro { max-width: 360px; }
+  .viewmore { margin-top: -8px; }
   .akira {
     position: fixed;
     bottom: 40px;
-    left: 24px;
+    left: var(--pad);
     width: auto;
     margin: 0;
     text-align: left;
@@ -99,7 +339,7 @@
   .akira .gif-link { display: block; }
   .akira .gifimg {
     display: block;
-    width: 230px;
+    width: 185px;
     height: auto;
     image-rendering: pixelated;
     border-radius: 2.75px;
@@ -118,7 +358,8 @@
   /* focus-blur is a mouse interaction only — on touch, :hover sticks and traps the page */
   @media (hover: hover) and (pointer: fine) {
     body:has(.akira:hover) > *:not(.akira):not(.reel-lightbox) { filter: blur(3px); opacity: 0.45; }
-    body:not(:has(.reel-lightbox.active)):has(.reel-thumb:hover) > *:not(.reel-thumb):not(.reel-lightbox) { filter: blur(3px); opacity: 0.45; }
+    /* no focus-blur on the reel any more — it lives inside .work, so the blur would either hit the
+       reel itself or spare the whole gallery, and it would fire every time you mouse over to scroll */
   }
   .akira figcaption {
     margin-top: 8px;
@@ -134,7 +375,62 @@
     vertical-align: -7px;
     margin-right: 6px;
   }
-  .hiring { margin-top: 26px; }
+  /* fine-print footnotes under the work list — mobile only */
+  .footnotes { display: none; }
+  @media (max-width: 1199px) {
+    .footnotes {
+      display: block;
+      margin-top: 52px;
+      padding-top: 24px;
+      border-top: 1px solid #eee;
+    }
+  }
+  /* a quiet directory — label, then one link per line */
+  .fn-label {
+    margin: 0 0 12px;
+    max-width: none;
+    font-size: 12px;
+    line-height: 1.55;
+    color: #b4b4b4;
+  }
+  .fn-list { list-style: none; padding-left: 0; margin: 0; }
+  .fn-list li {
+    margin: 0 0 9px;
+    font-size: 12px;
+    line-height: 1.55;
+    color: #8a8a8a;
+  }
+  .fn-list li:last-child { margin-bottom: 0; }
+  .fn-list a {
+    color: #666;
+    text-decoration: none;
+    border-bottom: 1px solid #dcdcdc;
+  }
+  .fn-list a:hover { color: #000; border-bottom-color: #999; text-decoration: none; }
+  /* ↳ for pages that stay in this tab, ↗ for anything that leaves it */
+  .footnotes .go {
+    width: 11px;
+    height: 11px;
+    margin-left: 5px;
+    vertical-align: -1px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.6;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+  .footnotes .ext {
+    width: 9px;
+    height: 9px;
+    margin-left: 4px;
+    vertical-align: 0;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.6;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
   .copyright {
     margin: 10px 0 0;
     font-size: 12px;
@@ -147,7 +443,7 @@
     width: 100%;
     height: auto;
     aspect-ratio: 16 / 9;
-    border-radius: 4.5px;
+    border-radius: 6px;
     vertical-align: bottom;
     transform-origin: center center;
     will-change: transform;
@@ -161,24 +457,118 @@
     display: none !important;
     -webkit-appearance: none;
   }
+  /* the reel is the first card — thumbnail left, label right */
+  .reel-card {
+    display: flex;
+    align-items: center;
+    gap: 22px;
+    cursor: pointer;
+    position: relative;      /* anchors the expand icon */
+    background: #fafafa;     /* a step lighter than the tag chips and mobile nav pills */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.02), 0 8px 22px rgba(0, 0, 0, 0.028);
+  }
+  /* affordance only — the whole card is already the click target */
+  .reel-expand {
+    position: absolute;
+    top: 15px;
+    right: 17px;
+    width: 15px;
+    height: 15px;
+    color: #c9c9c9;
+    pointer-events: none;
+    transition: color 0.25s ease;
+  }
+  .reel-expand svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.7;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
   .reel-thumb {
-    position: fixed;
-    top: 24px;
-    right: 24px;
-    width: 180px;
+    position: relative;            /* anchors the play glyph and runtime badge */
+    flex: 0 0 160px;
+    width: 160px;
+    aspect-ratio: 16 / 9;          /* 1920 x 1080 */
     overflow: hidden;
     cursor: pointer;
     line-height: 0;
-    border-radius: 4.5px;
+    border-radius: 10px;
     /* poster as a background so it's painted on the thumb itself (can't misalign like an absolute overlay) */
     background: #fff url('poster.jpg?v=2') center center / cover no-repeat;
-    transform-origin: top right;
     box-shadow: 0 4px 14px rgba(0, 0, 0, 0.10);
     transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.4s ease, opacity 0.45s ease, filter 0.45s ease;
-    z-index: 40;
+  }
+  /* both overlays are decoration — the whole card is already the click target */
+  .reel-play {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.82);
+    -webkit-backdrop-filter: blur(2px);
+    backdrop-filter: blur(2px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.14);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+    transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1), background 0.25s ease;
+  }
+  .reel-play svg { width: 15px; height: 15px; display: block; fill: #111; margin-left: 1px; }
+  /* runtime lives on the card, in the meta column — sits where a work card's tags would */
+  .reel-dur {
+    display: block;
+    margin-top: 14px;
+    color: #aaa;
+    font-size: 13px;
+    line-height: 1.5;
+    opacity: 0;                    /* stays hidden until a real duration is known */
+    transition: opacity 0.35s ease;
+  }
+  .reel-dur.ready { opacity: 1; }
+  @media (hover: hover) and (pointer: fine) {
+    .reel-card:hover .reel-play { transform: translate(-50%, -50%) scale(1.12); background: #fff; }
+    .reel-card:hover .reel-expand { color: #8a8a8a; }
+    .reel-card:hover .name-play { fill: #8a8a8a; stroke: #8a8a8a; }
+  }
+  .reel-meta { font-family: var(--sans); letter-spacing: 0; }
+  .reel-meta .name {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    color: #111;
+    font-size: 14px;      /* same size as the description below it */
+    line-height: 1.5;
+  }
+  /* decorative only — the card is the click target */
+  .name-play {
+    width: 13px;
+    height: 13px;
+    flex: none;
+    fill: #c4c4c4;
+    stroke: #c4c4c4;
+    stroke-width: 2.4;            /* rounds the tips without shrinking the triangle */
+    stroke-linejoin: round;
+    transition: fill 0.25s ease, stroke 0.25s ease;
+  }
+  .reel-meta .desc {
+    display: block;
+    margin-top: 6px;
+    max-width: 300px;      /* wraps earlier so the block sits tighter under the title */
+    color: #666;
+    font-size: 14px;
+    line-height: 1.5;
+    text-wrap: pretty;
   }
   @media (hover: hover) and (pointer: fine) {
-    .reel-thumb:hover { transform: scale(1.035); box-shadow: 0 8px 22px rgba(0, 0, 0, 0.14); }
+    .reel-card:hover .reel-thumb { transform: scale(1.035); box-shadow: 0 8px 22px rgba(0, 0, 0, 0.14); }
   }
 
   .reel-lightbox {
@@ -215,20 +605,13 @@
   }
   .reel-btn:hover { color: #1a52e0; }
 
-  @media (max-width: 1024px) {
+  @media (max-width: 1199px) {
     .intro, p { max-width: 330px; }  /* slightly tighter wrap on phones; desktop stays 360px */
     .akira {
       position: static;
       margin-top: 64px;
     }
-    .reel-thumb {
-      position: static;
-      top: auto;
-      right: auto;
-      width: 230px;
-      max-width: 100%;
-      margin: 56px 0;
-    }
+    .reel-thumb { flex-basis: 140px; width: 140px; }
   }
 </style>
 </head>
@@ -240,22 +623,176 @@
 
   <p class="intro">We own a portfolio of physical and digital products with the aim of influencing&nbsp;culture.</p>
 
+  <p class="intro">Learn more <a class="live" href="about.html">here</a>.</p>
+
   <ul>
     <li>🐾 <a class="live" href="https://pawshealth.co" target="_blank" rel="noopener">paws</a> — your pet, wrapped</li>
     <li>⛳ <a class="live" href="https://imessagegolf.com" target="_blank" rel="noopener">golf</a> — minigolf in iMessage</li>
     <li>🌱 <a class="live" href="https://apps.apple.com/us/app/plant-self-care/id6760047919" target="_blank" rel="noopener">plant</a> — gamified self care</li>
-    <li>🍄 <span class="inactive">bodega</span> — brain fog gummies</li>
   </ul>
 
-  <p class="intro">We can create for you too. <a class="live" href="create">Learn more</a>.</p>
+  <p class="viewall"><a href="about.html"><svg class="hook" viewBox="0 0 16 16" aria-hidden="true"><path d="M4.5 3v2.2a2.8 2.8 0 0 0 2.8 2.8H13"/><path d="M10.3 5.2 13 8l-2.7 2.8"/></svg>View all</a></p>
 
-  <div class="reel-thumb" id="reelThumb" role="button" tabindex="0" aria-label="Play reel">
-    <video id="reelVideo" src="reel.mp4?v=2" poster="poster.jpg?v=2" muted loop autoplay playsinline preload="auto"></video>
+  <p class="intro">We can create for you too. <a class="live" href="consulting.html">Learn more</a>.</p>
+
+  <p><a class="live" href="mailto:hi@internetlabs.co">hi@internetlabs.co</a></p>
+
+  <!-- desktop: sits here in the left column. Mobile: position:fixed top-right, so the
+       DOM position above doesn't matter — it renders as the menu button either way. -->
+  <nav class="nav" id="nav" aria-label="Sections">
+    <div class="nav-backdrop" id="navBackdrop"></div>
+    <button class="menu-btn" id="menuBtn" type="button" aria-expanded="false" aria-controls="navItems" aria-label="Menu">
+      <i></i><i></i>
+    </button>
+    <div class="nav-items" id="navItems">
+      <div class="nav-inner">
+        <a href="jobs.html">Jobs</a>
+        <a href="consulting.html">Consulting</a>
+        <a href="mailto:hi@internetlabs.co">Contact</a>
+      </div>
+    </div>
+  </nav>
+
+  <div class="work" aria-label="Selected work">
+
+    <div class="work-card reel-card" id="reelThumbCard">
+      <span class="reel-expand" aria-hidden="true">
+        <svg viewBox="0 0 16 16"><path d="M6.5 2h-4.5v4.5M9.5 2h4.5v4.5M9.5 14h4.5v-4.5M6.5 14h-4.5v-4.5"/></svg>
+      </span>
+      <div class="reel-thumb" id="reelThumb" role="button" tabindex="0" aria-label="Play reel">
+        <video id="reelVideo" src="reel.mp4?v=2" poster="poster.jpg?v=2" muted loop autoplay playsinline preload="auto"></video>
+        <span class="reel-play" aria-hidden="true">
+          <svg viewBox="0 0 24 24"><path d="M9 6.8v10.4L17.5 12z"/></svg>
+        </span>
+      </div>
+      <div class="reel-meta">
+        <span class="name">View Reel<svg class="name-play" viewBox="0 0 10 10" aria-hidden="true"><path d="M2.7 2.3v5.4L7.5 5z"/></svg></span>
+        <span class="desc">A sizzle reel of products that Internet has built and shipped so far.</span>
+        <span class="reel-dur" id="reelDur"></span>
+      </div>
+    </div>
+
+    <figure class="work-item">
+      <video class="work-media" src="21things.mp4" poster="21things-poster.jpg"
+             muted loop autoplay playsinline preload="auto"></video>
+      <figcaption class="work-cap">
+        <span class="name">21 things we like</span>
+        <span class="desc">An ongoing research document on consumer products and psychology.</span>
+        <span class="tags"><span class="tag">Internal</span><span class="tag">Research</span></span>
+      </figcaption>
+    </figure>
+
+    <figure class="work-item">
+      <img class="work-media" src="bodega-brand.jpg" alt="bodega — brain fog gummies" />
+      <figcaption class="work-cap">
+        <span class="name">bodega</span>
+        <span class="desc">Gummies made with strains of different mushrooms to help with brain fog, gut health, and mood.</span>
+        <span class="tags"><span class="tag">Internal</span><span class="tag">Wellness</span></span>
+      </figcaption>
+    </figure>
+
+    <figure class="work-item">
+      <img class="work-media" src="bodega-gummy.jpg" alt="bodega gummy held between two fingers" />
+      <figcaption class="work-cap">
+        <span class="name">bodega</span>
+        <span class="desc">Gummies made with strains of different mushrooms to help with brain fog, gut health, and mood.</span>
+        <span class="tags"><span class="tag">Internal</span><span class="tag">Wellness</span></span>
+      </figcaption>
+    </figure>
+
+    <figure class="work-item">
+      <img class="work-media" src="paws2.jpg" alt="paws — your pet's health, wrapped" />
+      <figcaption class="work-cap">
+        <span class="name">paws</span>
+        <span class="desc">Your pet's health, wrapped.</span>
+        <span class="tags"><span class="tag">Internal</span><span class="tag">Pets</span></span>
+      </figcaption>
+    </figure>
+
+    <figure class="work-item">
+      <img class="work-media" src="paws3.jpg" alt="paws app onboarding screens" />
+      <figcaption class="work-cap">
+        <span class="name">paws</span>
+        <span class="desc">Your pet's health, wrapped.</span>
+        <span class="tags"><span class="tag">Internal</span><span class="tag">Pets</span></span>
+      </figcaption>
+    </figure>
+
+    <figure class="work-item">
+      <img class="work-media" src="paws1.jpg" alt="paws mark" />
+      <figcaption class="work-cap">
+        <span class="name">paws</span>
+        <span class="desc">Your pet's health, wrapped.</span>
+        <span class="tags"><span class="tag">Internal</span><span class="tag">Pets</span></span>
+      </figcaption>
+    </figure>
+
+    <figure class="work-item">
+      <img class="work-media" src="tolans1.jpg" alt="Tolans — photo to character onboarding screens" />
+      <figcaption class="work-cap">
+        <span class="name">Tolans</span>
+        <span class="desc">A proposal for Tolans to create your Tolan directly from a picture.</span>
+        <span class="tags"><span class="tag">External</span><span class="tag">Proposal</span></span>
+      </figcaption>
+    </figure>
+
+    <figure class="work-item">
+      <img class="work-media" src="tolans2.jpg" alt="Tolans — create your own customized Tolan" />
+      <figcaption class="work-cap">
+        <span class="name">Tolans</span>
+        <span class="desc">A proposal for Tolans to create your Tolan directly from a picture.</span>
+        <span class="tags"><span class="tag">External</span><span class="tag">Proposal</span></span>
+      </figcaption>
+    </figure>
+
+    <figure class="work-item">
+      <img class="work-media" src="pocket.jpg" alt="Pocket — mark" />
+      <figcaption class="work-cap">
+        <span class="name">Pocket</span>
+        <span class="desc">Wellness and breathwork. Coming soon.</span>
+        <span class="tags"><span class="tag">Internal</span><span class="tag">Wellness</span></span>
+      </figcaption>
+    </figure>
+
+    <figure class="work-item">
+      <img class="work-media" src="water.jpg" alt="expensive — a can of exceptional water" />
+      <figcaption class="work-cap">
+        <span class="name">expensive</span>
+        <span class="desc">$200 water.</span>
+        <span class="tags"><span class="tag">Internal</span><span class="tag">Luxury Goods</span></span>
+      </figcaption>
+    </figure>
+
+    <figure class="work-item">
+      <img class="work-media" src="water2.jpg" alt="expensive — flat can label artwork" />
+      <figcaption class="work-cap">
+        <span class="name">expensive</span>
+        <span class="desc">$200 water.</span>
+        <span class="tags"><span class="tag">Internal</span><span class="tag">Luxury Goods</span></span>
+      </figcaption>
+    </figure>
+
+    <figure class="work-item">
+      <img class="work-media" src="chip.jpg" alt="CHIP — wordmark" />
+      <figcaption class="work-cap">
+        <span class="name">CHIP</span>
+        <span class="desc">Spicy chicken chips.</span>
+        <span class="tags"><span class="tag">External</span><span class="tag">Proposal</span></span>
+      </figcaption>
+    </figure>
+
   </div>
 
-  <p class="hiring">Looking for NYC based product designers, iOS developers, and growth partners.</p>
-
-  <p>Contact:<br><a class="live" href="mailto:hi@internetlabs.co">hi@internetlabs.co</a></p>
+  <!-- mobile only: desktop already has a footer in the fixed bottom-left block -->
+  <footer class="footnotes" aria-label="Additional resources">
+    <p class="fn-label">Additional resources</p>
+    <ul class="fn-list">
+      <li><a href="21-things-we-like.pdf" target="_blank" rel="noopener">21 things we like<svg class="ext" viewBox="0 0 16 16" aria-hidden="true"><path d="M6 3h7v7"/><path d="M13 3 6.5 9.5"/><path d="M11 10.5V13H3V5h2.5"/></svg></a></li>
+      <li><a href="jobs.html">Jobs<svg class="go" viewBox="0 0 16 16" aria-hidden="true"><path d="M4.5 3v2.2a2.8 2.8 0 0 0 2.8 2.8H13"/><path d="M10.3 5.2 13 8l-2.7 2.8"/></svg></a></li>
+      <li><a href="consulting.html">Consulting<svg class="go" viewBox="0 0 16 16" aria-hidden="true"><path d="M4.5 3v2.2a2.8 2.8 0 0 0 2.8 2.8H13"/><path d="M10.3 5.2 13 8l-2.7 2.8"/></svg></a></li>
+      <li><a href="mailto:hi@internetlabs.co">Contact<svg class="ext" viewBox="0 0 16 16" aria-hidden="true"><path d="M6 3h7v7"/><path d="M13 3 6.5 9.5"/><path d="M11 10.5V13H3V5h2.5"/></svg></a></li>
+    </ul>
+  </footer>
 
   <figure class="akira">
     <a class="gif-link" href="21-things-we-like.pdf" target="_blank" rel="noopener"><img class="gifimg" src="akira.gif?v=6" alt="Akira" /></a>
@@ -345,6 +882,22 @@
       var p = video.play();
       if (p && p.catch) p.catch(function () {});
     }
+    // the thumb lives in the work list now, which scrolls (its own panel on desktop, the page on
+    // mobile). If it scrolled out of view while the reel was open, the close animation would
+    // collapse the video toward an off-screen point — so bring it back on screen before measuring.
+    function ensureThumbVisible() {
+      var t = thumb.getBoundingClientRect();
+      var panel = thumb.closest('.work');
+      var p = panel ? panel.getBoundingClientRect() : null;
+      var offPanel = !!p && (t.bottom <= p.top || t.top >= p.bottom);
+      var offScreen = t.bottom <= 0 || t.top >= window.innerHeight;
+      if (!offPanel && !offScreen) return;
+      var lock = document.body.style.overflow;
+      document.body.style.overflow = '';                  // page scroll is locked while open
+      try { thumb.scrollIntoView({ block: 'center', behavior: 'instant' }); }
+      catch (e) { thumb.scrollIntoView(true); }            // older Safari: no options object
+      document.body.style.overflow = lock;
+    }
 
     function open() {
       if (lb.classList.contains('active')) return;
@@ -394,8 +947,9 @@
       if (!lb.classList.contains('active')) return;
       clearHandlers();
       lb.classList.remove('controls-on');
+      ensureThumbVisible();
       var first = video.getBoundingClientRect();           // full, centered
-      var t = thumb.getBoundingClientRect();                // corner home (empty -> zero height)
+      var t = thumb.getBoundingClientRect();                // its slot in the work list (empty)
       var ratio = first.height / first.width;
       var target = { left: t.left, top: t.top, width: t.width, height: t.width * ratio };
       var s = target.width / first.width;                    // collapsed scale (corner / full)
@@ -436,6 +990,10 @@
     }
 
     thumb.addEventListener('click', open);
+    // the whole card reads as the button ("View Reel"), so let all of it open the reel.
+    // a click on the thumb bubbles up here too — open() no-ops when it's already active.
+    var thumbCard = document.getElementById('reelThumbCard');
+    if (thumbCard) thumbCard.addEventListener('click', open);
     thumb.addEventListener('keydown', function (e) {
       if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); open(); }
     });
@@ -453,6 +1011,17 @@
     });
     video.addEventListener('timeupdate', updateTime);
     video.addEventListener('loadedmetadata', updateTime);
+
+    // runtime badge — read off the file itself, never shown until it's a real number
+    var durEl = document.getElementById('reelDur');
+    function setDur() {
+      if (!durEl || !isFinite(video.duration) || video.duration <= 0) return;
+      durEl.textContent = fmt(video.duration);
+      durEl.classList.add('ready');
+    }
+    video.addEventListener('loadedmetadata', setDur);
+    video.addEventListener('durationchange', setDur);
+    setDur();
 
     // poster overlay: visible whenever the video isn't actually playing (covers iOS's play button in Low Power Mode)
     // The iOS play button is part of the <video> element and is drawn above the page, so it can't be
@@ -486,6 +1055,107 @@
   </script>
 
   <script>
+  // desktop: the work panel is effectively the page's scroll, so forward the wheel to it
+  // from anywhere on the page — not just when the cursor is over the panel itself
+  (function () {
+    var work = document.querySelector('.work');
+    var lb = document.getElementById('reelLightbox');
+    if (!work) return;
+    window.addEventListener('wheel', function (e) {
+      if (window.innerWidth < 1200) return;                 // mobile scrolls the page normally
+      if (lb && lb.classList.contains('active')) return;    // reel is open — leave it alone
+      if (work.contains(e.target)) return;                  // already the native scroll target
+      var d = e.deltaY;
+      if (e.deltaMode === 1) d *= 16;                       // lines -> px
+      else if (e.deltaMode === 2) d *= window.innerHeight;  // pages -> px
+      var before = work.scrollTop;
+      work.scrollTop = before + d;
+      // only swallow the gesture if the panel actually moved, so at either end
+      // the page can still do whatever it would normally do
+      if (work.scrollTop !== before) e.preventDefault();
+    }, { passive: false });
+  })();
+  </script>
+
+  <script>
+  // iOS won't honour the `autoplay` attribute for a video that's off screen or still
+  // transparent from the intro fade, and it never retries on its own. So drive playback
+  // from an observer instead: play when a video scrolls into view, pause when it leaves.
+  (function () {
+    var vids = document.querySelectorAll('.work video');
+    var lb = document.getElementById('reelLightbox');
+    if (!vids.length) return;
+
+    function tryPlay(v) {
+      var p = v.play();
+      if (p && p.catch) p.catch(function () {});   // Low Power Mode rejects — poster stays up
+    }
+    function lightboxOpen() { return lb && lb.classList.contains('active'); }
+
+    if (!('IntersectionObserver' in window)) {
+      Array.prototype.forEach.call(vids, tryPlay);
+      return;
+    }
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        var v = e.target;
+        if (e.isIntersecting) tryPlay(v);
+        else if (!v.paused && !lightboxOpen()) v.pause();   // off screen: save the battery
+      });
+    }, { threshold: 0.15 });
+    Array.prototype.forEach.call(vids, function (v) { io.observe(v); });
+
+    // iOS also pauses everything when you leave the tab and doesn't resume on return
+    function resumeVisible() {
+      if (document.visibilityState !== 'visible') return;
+      Array.prototype.forEach.call(vids, function (v) {
+        var r = v.getBoundingClientRect();
+        if (v.paused && r.bottom > 0 && r.top < window.innerHeight) tryPlay(v);
+      });
+    }
+    document.addEventListener('visibilitychange', resumeVisible);
+    window.addEventListener('pageshow', resumeVisible);
+  })();
+  </script>
+
+  <script>
+  // mobile nav toggle — CSS owns the animation, this just flips the class
+  (function () {
+    var nav = document.getElementById('nav');
+    var btn = document.getElementById('menuBtn');
+    var items = document.getElementById('navItems');
+    if (!nav || !btn || !items) return;
+    function setOpen(on) {
+      nav.classList.toggle('open', on);
+      btn.setAttribute('aria-expanded', on ? 'true' : 'false');
+      // scrollHeight ignores the max-height clip, so this is the true content height
+      items.style.maxHeight = on ? items.scrollHeight + 'px' : '0px';
+    }
+    // desktop has no collapse — drop the inline height so the chips can't be clipped
+    window.addEventListener('resize', function () {
+      if (window.innerWidth >= 1200) {
+        nav.classList.remove('open');
+        btn.setAttribute('aria-expanded', 'false');
+        items.style.maxHeight = '';
+      } else if (nav.classList.contains('open')) {
+        items.style.maxHeight = items.scrollHeight + 'px';   // re-measure if the chips rewrap
+      }
+    });
+    btn.addEventListener('click', function () {
+      setOpen(!nav.classList.contains('open'));
+    });
+    Array.prototype.forEach.call(nav.querySelectorAll('.nav-inner a'), function (a) {
+      a.addEventListener('click', function () { setOpen(false); });
+    });
+    var backdrop = document.getElementById('navBackdrop');
+    if (backdrop) backdrop.addEventListener('click', function () { setOpen(false); });
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') setOpen(false);
+    });
+  })();
+  </script>
+
+  <script>
   (function () {
     var html = document.documentElement;
     function reveal() { html.classList.remove('js-typing'); }
@@ -507,13 +1177,31 @@
           return el !== logo && el.tagName !== 'SCRIPT';
         });
 
-        // snapshot the logo's content, then empty just the logo
+        // the work cards stagger in on top of the page-wide fade. Hidden here in JS rather than
+        // in CSS so a no-JS or reduced-motion load still renders them normally.
+        var workCards = Array.prototype.slice.call(document.querySelectorAll('.work > *'));
+        workCards.forEach(function (el) {
+          el.style.opacity = '0';
+          el.style.transform = 'translateY(16px)';
+        });
+
+        // snapshot the logo's content, then empty it
         var logoOriginal = Array.prototype.map.call(logo.childNodes, function (n) { return n.cloneNode(true); });
         logo.innerHTML = '';
 
         // hide everything else instantly (transition off) so nothing flashes at reveal
         fadeEls.forEach(function (el) { el.style.transition = 'none'; el.style.opacity = '0'; });
-        reveal(); // logo is empty, rest is hidden — safe to show
+
+        // float the (empty) logo to dead-center of the screen, bigger — sized with font-size so it
+        // stays crisp (a transform: scale would blur it during the caret hop). inset:0 + margin:auto
+        // centers it on both axes with no transform at all.
+        logo.style.position = 'fixed';
+        logo.style.inset = '0';
+        logo.style.margin = 'auto';
+        logo.style.width = 'fit-content';
+        logo.style.height = 'fit-content';
+        logo.style.fontSize = '44px';
+        reveal(); // logo is centered & empty, rest is hidden — safe to show
 
         function typeInto(srcNodes, target, speed) {
           return srcNodes.reduce(function (p, child) {
@@ -558,21 +1246,66 @@
           .then(hopCaretOnce)
           .then(function () { return sleep(500); })   // let it rest a beat after the hop before fading in
           .then(function () {
-            if (caret.parentNode) { caret.parentNode.removeChild(caret); }
-            // fade the rest of the screen in together
-            fadeEls.forEach(function (el) {
-              el.style.transition = 'opacity 1.3s ease';
-              el.style.opacity = '1';
-            });
-            // drop inline styles afterward so CSS (hover-dimming, etc.) can take over
+            // no slide-to-corner: fade the centered splash out, then (while invisible) drop the logo
+            // back to its top-left home and fade it + the page in. Keep the caret through the fade-out —
+            // removing it here shrinks the margin:auto logo and shifts the text right just before fading.
+            logo.style.transition = 'opacity 0.3s ease';
+            logo.style.opacity = '0';
             setTimeout(function () {
-              fadeEls.forEach(function (el) { el.style.transition = ''; el.style.opacity = ''; });
-            }, 1350);
-            // make sure the reel is actually playing once it appears
-            if (reelVideo) {
-              var pp = reelVideo.play && reelVideo.play();
-              if (pp && pp.catch) pp.catch(function () {});
-            }
+              if (caret.parentNode) { caret.parentNode.removeChild(caret); }   // remove while invisible
+              logo.style.transition = 'none';
+              logo.style.position = ''; logo.style.inset = ''; logo.style.margin = '';
+              logo.style.width = ''; logo.style.height = ''; logo.style.fontSize = '';
+              void logo.offsetWidth;                       // commit the reset before fading back in
+              logo.style.transition = 'opacity 0.6s ease';
+              logo.style.opacity = '1';
+              fadeEls.forEach(function (el) {
+                el.style.transition = 'opacity 1.3s ease';
+                el.style.opacity = '1';
+              });
+              // Hand the cards to an observer instead of revealing them all at once. The ones
+              // already on screen arrive together (staggered); the rest wait until you scroll
+              // to them. Same treatment either way, so the page never changes character.
+              if ('IntersectionObserver' in window) {
+                var fired = false;
+                var io = new IntersectionObserver(function (entries) {
+                  var arrived = entries.filter(function (e) { return e.isIntersecting; });
+                  if (arrived.length) { fired = true; }
+                  arrived.forEach(function (entry, i) {
+                    var el = entry.target;
+                    io.unobserve(el);
+                    var d = 120 + i * 90;   // 1 entry when scrolling in, so effectively no stagger there
+                    el.style.transition = 'opacity 0.55s ease ' + d + 'ms, ' +
+                                          'transform 0.75s cubic-bezier(0.22, 1, 0.36, 1) ' + d + 'ms';
+                    el.style.opacity = '1';
+                    el.style.transform = 'none';
+                  });
+                }, { rootMargin: '0px 0px -6% 0px', threshold: 0.05 });
+                workCards.forEach(function (el) { io.observe(el); });
+                // Safety net: an entrance animation must never be able to hide the work for good.
+                // If the observer hasn't fired at all shortly after setup — e.g. the page loaded in
+                // a background tab, where no frames are produced — just show everything.
+                setTimeout(function () {
+                  if (fired) return;
+                  workCards.forEach(function (el) {
+                    io.unobserve(el);
+                    el.style.transition = 'opacity 0.4s ease';
+                    el.style.opacity = '1';
+                    el.style.transform = 'none';
+                  });
+                }, 2500);
+              } else {
+                workCards.forEach(function (el) { el.style.opacity = ''; el.style.transform = ''; });
+              }
+              if (reelVideo) {
+                var pp = reelVideo.play && reelVideo.play();
+                if (pp && pp.catch) pp.catch(function () {});
+              }
+              setTimeout(function () {
+                logo.style.transition = ''; logo.style.opacity = '';
+                fadeEls.forEach(function (el) { el.style.transition = ''; el.style.opacity = ''; });
+              }, 1350);
+            }, 310);
           });
       } catch (e) {
         reveal();
