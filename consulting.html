@@ -29,6 +29,10 @@
 <style>
   html { -webkit-text-size-adjust: 100%; }
   html.js-typing body { visibility: hidden; }
+  /* page-to-page navigation fades through white instead of replaying the splash */
+  html.page-enter body { opacity: 0; }
+  html.page-enter.page-enter-active body { opacity: 1; transition: opacity 0.85s ease; }
+  html.page-leaving body { opacity: 0; transition: opacity 0.55s ease; }
   .caret {
     display: inline-block;
     width: 13px;
@@ -83,17 +87,19 @@
 
   <h1><a href="index.html">internet</a></h1>
 
-  <p class="intro">Internet builds products for a handful of partners each year.</p>
+  <p class="intro">Internet designs and builds for a handful of companies each&nbsp;year.</p>
 
-  <p class="intro">We take products from 0 → 1, the same exact way we build our own:</p>
+  <p class="intro">We apply our creativity and execution to your brand, website, or product, just like we do for our own&nbsp;products.</p>
 
   <p class="intro">Concept: We’ll ideate for you.<br>Design: We’ll create for you.<br>Development: We’ll engineer for you.<br>Strategy: We’ll go viral for you.</p>
-
-  <p class="intro">We work as a team, and can handle strategy, product design, engineering, and go-to-market as one motion.</p>
 
   <p class="intro">Take everything, or just what you need.</p>
 
   <p class="intro">Pricing varies based on your needs, but starts at $25,000.</p>
+
+  <p class="intro">Select clients include: Drake, Travis Scott, McDonald's, Roots, Chai Discovery, Clout, Saint, Sandbar, Phia, OneOff.</p>
+
+  <p class="intro">Taking on very select&nbsp;projects.</p>
 
   <p class="intro">For all inquiries: <a class="live" href="mailto:hi@internetlabs.co">hi@internetlabs.co</a>.</p>
 
@@ -101,8 +107,43 @@
   (function () {
     var html = document.documentElement;
     function reveal() { html.classList.remove('js-typing'); }
+
+    // Fade out before any same-site navigation so the outgoing and incoming halves meet.
+    // Bound before every early return, so it works whether or not the splash runs.
+    document.addEventListener('click', function (e) {
+      if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+      var a = e.target && e.target.closest ? e.target.closest('a') : null;
+      if (!a || a.target === '_blank' || a.hasAttribute('download')) return;
+      var href = a.getAttribute('href');
+      if (!href || href.charAt(0) === '#' || /^(mailto:|tel:)/i.test(href)) return;
+      var url;
+      try { url = new URL(href, location.href); } catch (err) { return; }
+      if (url.origin !== location.origin) return;
+      e.preventDefault();
+      try { sessionStorage.setItem('internalNav', '1'); } catch (err) {}
+      html.classList.add('page-leaving');
+      setTimeout(function () { location.href = url.href; }, 520);
+    });
     var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     if (reduce) { reveal(); return; }
+
+    // The splash is for ARRIVING: typed URL, external link, or refresh.
+    // A click between our own pages sets a one-shot flag just before navigating and we
+    // consume it here. Sniffing document.referrer / navigation type was unreliable —
+    // Safari does not always report a same-origin referrer on a scripted navigation.
+    var internal = false;
+    try {
+      internal = sessionStorage.getItem('internalNav') === '1';
+      sessionStorage.removeItem('internalNav');   // consumed, so a later refresh counts as arriving
+    } catch (e) {}
+    if (internal) {
+      html.classList.add('page-enter');
+      reveal();
+      requestAnimationFrame(function () {
+        requestAnimationFrame(function () { html.classList.add('page-enter-active'); });
+      });
+      return;
+    }
 
     function run() {
       try {

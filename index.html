@@ -29,6 +29,10 @@
 <style>
   html { -webkit-text-size-adjust: 100%; }
   html.js-typing body { visibility: hidden; }
+  /* page-to-page navigation fades through white instead of replaying the splash */
+  html.page-enter body { opacity: 0; }
+  html.page-enter.page-enter-active body { opacity: 1; transition: opacity 0.85s ease; }
+  html.page-leaving body { opacity: 0; transition: opacity 0.55s ease; }
   .caret {
     display: inline-block;
     width: 13px;
@@ -227,6 +231,36 @@
     .nav-items, .nav-inner > *, .menu-btn i { transition: none !important; }
   }
 
+  /* filter chips above the work panel — same chip language as the caption tags */
+  .work-filter {
+    display: flex;
+    gap: 8px;
+    margin: 0;                /* the panel's flex gap sets the spacing on both sides */
+    font-family: var(--sans);
+    letter-spacing: 0;
+  }
+  .work-filter button {
+    font: inherit;
+    font-size: 13px;
+    line-height: 1;
+    padding: 9px 18px;
+    border: 0;
+    border-radius: 7px;
+    background: var(--card);
+    color: #888;
+    cursor: pointer;
+    transition: background 0.2s ease, color 0.2s ease;
+  }
+  .work-filter button:hover { background: var(--card-hi); color: #444; }
+  .work-filter button[aria-pressed="true"] { background: #e4e4e4; color: #222; }
+  /* hidden cards collapse out of the flex column entirely, so gaps close up */
+  .work > [hidden] { display: none; }
+  /* filter reveal. A CSS animation outranks the inline opacity/transform the load-in
+     animation leaves behind, so filtering needs no reset frame and no rAF. */
+  @keyframes workIn {
+    from { opacity: 0; transform: translateY(12px); }
+    to   { opacity: 1; transform: none; }
+  }
   /* work — cards in a grey tray, caption sits outside/below in sans */
   .work {
     display: flex;
@@ -326,7 +360,7 @@
   a:hover { text-decoration: underline; }
   .live { text-decoration: underline; }              /* real, active links */
   .inactive { color: #666; text-decoration: none; cursor: default; } /* gray — not a link */
-  .blue { color: #1a52e0; text-decoration: none; cursor: default; }   /* active, but not linked */
+  .blue { color: #1a52e0; text-decoration: none; }   /* active products — linked */
   .intro { max-width: 360px; }
   .viewmore { margin-top: -8px; }
   .akira {
@@ -337,24 +371,6 @@
     margin: 0;
     text-align: left;
   }
-  .akira .gif-link { display: block; }
-  .akira .gifimg {
-    display: block;
-    width: 185px;
-    height: auto;
-    image-rendering: pixelated;
-    border-radius: 2.75px;
-    transform-origin: bottom left;
-    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.10);
-    transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.4s ease;
-    will-change: transform;
-  }
-  @media (hover: hover) and (pointer: fine) {
-    .akira:hover .gifimg {
-      transform: scale(1.035);
-      box-shadow: 0 8px 22px rgba(0, 0, 0, 0.14);
-    }
-  }
   body > * { transition: filter 0.45s ease, opacity 0.45s ease; }
   /* focus-blur is a mouse interaction only — on touch, :hover sticks and traps the page */
   @media (hover: hover) and (pointer: fine) {
@@ -362,6 +378,8 @@
     /* no focus-blur on the reel any more — it lives inside .work, so the blur would either hit the
        reel itself or spare the whole gallery, and it would fire every time you mouse over to scroll */
   }
+  /* sits directly above the PDF link, same voice as "Products:" up the column */
+  .addl { margin: 0 0 10px; max-width: none; }
   .akira figcaption {
     margin-top: 8px;
     margin-left: -2px;
@@ -620,21 +638,19 @@
 
   <h1><a href="index.html">internet</a></h1>
 
-  <p class="intro">Internet is the company that builds companies. We build beautiful, viral consumer software and products.</p>
+  <p class="intro">Internet is a company that builds companies. We build our own beautiful, viral consumer software and products.</p>
 
-  <p class="intro">We own a portfolio of physical and digital products with the aim of influencing&nbsp;culture.</p>
+  <p class="intro">We also have a consulting arm in which we think, design, and develop for brands and businesses. <a class="live" href="consulting.html">Learn more</a>.</p>
 
-  <p class="intro">Learn more <a class="live" href="about.html">here</a>.</p>
+  <p class="intro">Products:</p>
 
   <ul>
-    <li>🐾 <span class="blue">paws</span> — your pet, wrapped</li>
-    <li>⛳ <span class="blue">golf</span> — minigolf in imessage</li>
-    <li>🌱 <span class="blue">plant</span> — gamified self care</li>
+    <li>💥 <a class="blue" href="https://strips.camera" target="_blank" rel="noopener">Strips</a> — the everything camera</li>
+    <li>🐾 <a class="blue" href="https://apps.apple.com/us/app/paws-pet-wrapped/id6786887446" target="_blank" rel="noopener">Paws</a> — your pet, wrapped</li>
+    <li>🌱 <a class="blue" href="https://apps.apple.com/us/app/plant-self-care/id6760047919" target="_blank" rel="noopener">Plant</a> — gamified self care</li>
   </ul>
 
   <p class="viewall"><a href="about.html"><svg class="hook" viewBox="0 0 16 16" aria-hidden="true"><path d="M4.5 3v2.2a2.8 2.8 0 0 0 2.8 2.8H13"/><path d="M10.3 5.2 13 8l-2.7 2.8"/></svg>View all</a></p>
-
-  <p class="intro">We can create for you too. <a class="live" href="consulting.html">Learn more</a>.</p>
 
   <p><a class="live" href="mailto:hi@internetlabs.co">hi@internetlabs.co</a></p>
 
@@ -649,14 +665,14 @@
       <div class="nav-inner">
         <a href="jobs.html">Jobs</a>
         <a href="consulting.html">Consulting</a>
-        <a href="mailto:hi@internetlabs.co">Contact</a>
+        <a href="about.html">About</a>
       </div>
     </div>
   </nav>
 
   <div class="work" aria-label="Selected work">
 
-    <div class="work-card reel-card" id="reelThumbCard">
+    <div class="work-card reel-card" id="reelThumbCard" data-pinned>
       <span class="reel-expand" aria-hidden="true">
         <svg viewBox="0 0 16 16"><path d="M6.5 2h-4.5v4.5M9.5 2h4.5v4.5M9.5 14h4.5v-4.5M6.5 14h-4.5v-4.5"/></svg>
       </span>
@@ -673,6 +689,11 @@
       </div>
     </div>
 
+    <div class="work-filter" role="group" aria-label="Filter work">
+      <button type="button" data-filter="all" aria-pressed="true">All</button>
+      <button type="button" data-filter="Internal" aria-pressed="false">Internal</button>
+      <button type="button" data-filter="External" aria-pressed="false">External</button>
+    </div>
     <figure class="work-item">
       <video class="work-media" src="21things.mp4" poster="21things-poster.jpg"
              muted loop autoplay playsinline preload="auto"></video>
@@ -682,103 +703,188 @@
         <span class="tags"><span class="tag">Internal</span><span class="tag">Research</span></span>
       </figcaption>
     </figure>
-
     <figure class="work-item">
       <img class="work-media" src="bodega-brand.jpg" alt="bodega — brain fog gummies" />
       <figcaption class="work-cap">
-        <span class="name">bodega</span>
+        <span class="name">Bodega</span>
         <span class="desc">Gummies made with strains of different mushrooms to help with brain fog, gut health, and mood.</span>
         <span class="tags"><span class="tag">Internal</span><span class="tag">Wellness</span></span>
       </figcaption>
     </figure>
-
     <figure class="work-item">
       <img class="work-media" src="bodega-gummy.jpg" alt="bodega gummy held between two fingers" />
       <figcaption class="work-cap">
-        <span class="name">bodega</span>
+        <span class="name">Bodega</span>
         <span class="desc">Gummies made with strains of different mushrooms to help with brain fog, gut health, and mood.</span>
         <span class="tags"><span class="tag">Internal</span><span class="tag">Wellness</span></span>
       </figcaption>
     </figure>
-
     <figure class="work-item">
       <img class="work-media" src="PawsV2.jpg" alt="paws — your pet's health, wrapped" />
       <figcaption class="work-cap">
-        <span class="name">paws</span>
-        <span class="desc">Your pet's health, wrapped.</span>
+        <span class="name">Paws</span>
+        <span class="desc">Receive insights on your pet's health, stats, and more in a wrapped format.</span>
         <span class="tags"><span class="tag">Internal</span><span class="tag">Pets</span></span>
       </figcaption>
     </figure>
-
     <figure class="work-item">
       <img class="work-media" src="paws3.jpg" alt="paws app onboarding screens" />
       <figcaption class="work-cap">
-        <span class="name">paws</span>
-        <span class="desc">Your pet's health, wrapped.</span>
+        <span class="name">Paws</span>
+        <span class="desc">Receive insights on your pet's health, stats, and more in a wrapped format.</span>
         <span class="tags"><span class="tag">Internal</span><span class="tag">Pets</span></span>
       </figcaption>
     </figure>
-
     <figure class="work-item">
       <img class="work-media" src="paws1.jpg" alt="paws mark" />
       <figcaption class="work-cap">
-        <span class="name">paws</span>
-        <span class="desc">Your pet's health, wrapped.</span>
+        <span class="name">Paws</span>
+        <span class="desc">Receive insights on your pet's health, stats, and more in a wrapped format.</span>
         <span class="tags"><span class="tag">Internal</span><span class="tag">Pets</span></span>
       </figcaption>
     </figure>
-
     <figure class="work-item">
       <img class="work-media" src="tolans1.jpg" alt="Tolan — photo to character onboarding screens" />
       <figcaption class="work-cap">
         <span class="name">Tolan</span>
-        <span class="desc">A proposal for Tolan to create your Tolan directly from a picture.</span>
-        <span class="tags"><span class="tag">External</span><span class="tag">Proposal</span></span>
+        <span class="desc">A proposal for Tolan to create your Tolan directly from a picture of yourself.</span>
+        <span class="tags"><span class="tag">External</span><span class="tag">AI</span><span class="tag">Proposal</span></span>
       </figcaption>
     </figure>
-
     <figure class="work-item">
       <img class="work-media" src="tolans2.jpg" alt="Tolan — create your own customized Tolan" />
       <figcaption class="work-cap">
         <span class="name">Tolan</span>
-        <span class="desc">A proposal for Tolan to create your Tolan directly from a picture.</span>
-        <span class="tags"><span class="tag">External</span><span class="tag">Proposal</span></span>
+        <span class="desc">A proposal for Tolan to create your Tolan directly from a picture of yourself.</span>
+        <span class="tags"><span class="tag">External</span><span class="tag">AI</span><span class="tag">Proposal</span></span>
       </figcaption>
     </figure>
-
     <figure class="work-item">
       <img class="work-media" src="pocket.jpg" alt="Pocket — mark" />
       <figcaption class="work-cap">
         <span class="name">Pocket</span>
-        <span class="desc">Wellness and breathwork. Coming soon.</span>
+        <span class="desc">Wellness and breathwork software. Coming soon.</span>
         <span class="tags"><span class="tag">Internal</span><span class="tag">Wellness</span></span>
       </figcaption>
     </figure>
-
     <figure class="work-item">
       <img class="work-media" src="water.jpg" alt="expensive — a can of exceptional water" />
       <figcaption class="work-cap">
-        <span class="name">expensive</span>
+        <span class="name">Expensive</span>
         <span class="desc">$200 water.</span>
         <span class="tags"><span class="tag">Internal</span><span class="tag">Luxury Goods</span></span>
       </figcaption>
     </figure>
-
     <figure class="work-item">
       <img class="work-media" src="water2.jpg" alt="expensive — flat can label artwork" />
       <figcaption class="work-cap">
-        <span class="name">expensive</span>
+        <span class="name">Expensive</span>
         <span class="desc">$200 water.</span>
         <span class="tags"><span class="tag">Internal</span><span class="tag">Luxury Goods</span></span>
       </figcaption>
     </figure>
-
+    <figure class="work-item">
+      <img class="work-media" src="roots-logo.png" alt="Roots — wordmark" />
+      <figcaption class="work-cap">
+        <span class="name">Roots</span>
+        <span class="desc">Identity for a money transfer app.</span>
+        <span class="tags"><span class="tag">External</span><span class="tag">Finance</span></span>
+      </figcaption>
+    </figure>
+    <figure class="work-item">
+      <img class="work-media" src="roots-spread.jpg" alt="Roots — brand guidelines spread" />
+      <figcaption class="work-cap">
+        <span class="name">Roots</span>
+        <span class="desc">Identity for a money transfer app.</span>
+        <span class="tags"><span class="tag">External</span><span class="tag">Finance</span></span>
+      </figcaption>
+    </figure>
+    <figure class="work-item">
+      <img class="work-media" src="perpetual-logo.png" alt="Perpetual — wordmark" />
+      <figcaption class="work-cap">
+        <span class="name">Perpetual</span>
+        <span class="desc">Identity for a future-forward healthcare company.</span>
+        <span class="tags"><span class="tag">External</span><span class="tag">Healthcare</span></span>
+      </figcaption>
+    </figure>
+    <figure class="work-item">
+      <img class="work-media" src="perpetual-spread.jpg" alt="Perpetual — mobile and site design" />
+      <figcaption class="work-cap">
+        <span class="name">Perpetual</span>
+        <span class="desc">Identity for a future-forward healthcare company.</span>
+        <span class="tags"><span class="tag">External</span><span class="tag">Healthcare</span></span>
+      </figcaption>
+    </figure>
+    <figure class="work-item">
+      <img class="work-media" src="perpetual-wire.png" alt="Perpetual — wordmark construction" />
+      <figcaption class="work-cap">
+        <span class="name">Perpetual</span>
+        <span class="desc">Identity for a future-forward healthcare company.</span>
+        <span class="tags"><span class="tag">External</span><span class="tag">Healthcare</span></span>
+      </figcaption>
+    </figure>
     <figure class="work-item">
       <img class="work-media" src="ChipV2.jpg" alt="CHIP — wordmark" />
       <figcaption class="work-cap">
         <span class="name">CHIP</span>
-        <span class="desc">Spicy chicken chips.</span>
-        <span class="tags"><span class="tag">External</span><span class="tag">Proposal</span></span>
+        <span class="desc">Identity for a spicy chicken chips company.</span>
+        <span class="tags"><span class="tag">External</span><span class="tag">Food</span><span class="tag">Proposal</span></span>
+      </figcaption>
+    </figure>
+    <figure class="work-item">
+      <img class="work-media" src="raha-1.jpg" alt="RAHA — contemporary furniture" />
+      <figcaption class="work-cap">
+        <span class="name">RAHA</span>
+        <span class="desc">Contemporary furniture.</span>
+        <span class="tags"><span class="tag">Internal</span><span class="tag">Furniture</span></span>
+      </figcaption>
+    </figure>
+    <figure class="work-item">
+      <img class="work-media" src="raha-2.jpg" alt="RAHA — contemporary furniture" />
+      <figcaption class="work-cap">
+        <span class="name">RAHA</span>
+        <span class="desc">Contemporary furniture.</span>
+        <span class="tags"><span class="tag">Internal</span><span class="tag">Furniture</span></span>
+      </figcaption>
+    </figure>
+    <figure class="work-item">
+      <img class="work-media" src="raha-3.jpg" alt="RAHA — contemporary furniture" />
+      <figcaption class="work-cap">
+        <span class="name">RAHA</span>
+        <span class="desc">Contemporary furniture.</span>
+        <span class="tags"><span class="tag">Internal</span><span class="tag">Furniture</span></span>
+      </figcaption>
+    </figure>
+    <figure class="work-item">
+      <img class="work-media" src="arc-3.jpg" alt="Arc" />
+      <figcaption class="work-cap">
+        <span class="name">Arc</span>
+        <span class="desc">A piece of hardware proposed to Arc that lets you surf the internet, on a smaller screen.</span>
+        <span class="tags"><span class="tag">External</span><span class="tag">Technology</span><span class="tag">Proposal</span></span>
+      </figcaption>
+    </figure>
+    <figure class="work-item">
+      <img class="work-media" src="arc-1.jpg" alt="Arc" />
+      <figcaption class="work-cap">
+        <span class="name">Arc</span>
+        <span class="desc">A piece of hardware proposed to Arc that lets you surf the internet, on a smaller screen.</span>
+        <span class="tags"><span class="tag">External</span><span class="tag">Technology</span><span class="tag">Proposal</span></span>
+      </figcaption>
+    </figure>
+    <figure class="work-item">
+      <img class="work-media" src="arc-2.jpg" alt="Arc" />
+      <figcaption class="work-cap">
+        <span class="name">Arc</span>
+        <span class="desc">A piece of hardware proposed to Arc that lets you surf the internet, on a smaller screen.</span>
+        <span class="tags"><span class="tag">External</span><span class="tag">Technology</span><span class="tag">Proposal</span></span>
+      </figcaption>
+    </figure>
+    <figure class="work-item">
+      <img class="work-media" src="chai.jpg" alt="Chai Discovery — wordmark" />
+      <figcaption class="work-cap">
+        <span class="name">Chai</span>
+        <span class="desc">Available on request.</span>
+        <span class="tags"><span class="tag">External</span><span class="tag">Healthcare</span></span>
       </figcaption>
     </figure>
 
@@ -796,7 +902,7 @@
   </footer>
 
   <figure class="akira">
-    <a class="gif-link" href="21-things-we-like.pdf" target="_blank" rel="noopener"><img class="gifimg" src="akira.gif?v=6" alt="Akira" /></a>
+    <p class="addl">Additional:</p>
     <figcaption><img class="pdficon" src="pdf.png" alt="PDF" /><a href="21-things-we-like.pdf" target="_blank" rel="noopener">21 things we like.pdf</a></figcaption>
     <p class="copyright">© 2026 Internet Companies, Inc.</p>
   </figure>
@@ -1056,6 +1162,113 @@
   </script>
 
   <script>
+  // Scroll reveal for the work cards. This used to live inside the splash animation, which
+  // meant it only existed when the splash played — navigating between pages skipped it and
+  // nothing ever animated. It is its own module now and runs on every entry path; it just
+  // waits for 'page:revealed' so cards do not animate behind an invisible panel.
+  (function () {
+    var work = document.querySelector('.work');
+    if (!work) return;
+    var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reduce || !('IntersectionObserver' in window)) return;   // leave them plainly visible
+
+    var cards = Array.prototype.filter.call(work.children, function (el) {
+      return !el.classList.contains('work-filter');
+    });
+    cards.forEach(function (el) {
+      el.style.opacity = '0';
+      el.style.transform = 'translateY(16px)';
+    });
+
+    function start() {
+      var fired = false;
+      var io = new IntersectionObserver(function (entries) {
+        var arrived = entries.filter(function (e) { return e.isIntersecting; });
+        if (arrived.length) fired = true;
+        arrived.forEach(function (entry, i) {
+          var el = entry.target;
+          io.unobserve(el);
+          var d = i * 90;              // one entry at a time when scrolling, so no stagger there
+          el.style.transition = 'opacity 0.55s ease ' + d + 'ms, ' +
+                                'transform 0.75s cubic-bezier(0.22, 1, 0.36, 1) ' + d + 'ms';
+          el.style.opacity = '1';
+          el.style.transform = 'none';
+        });
+      }, { rootMargin: '0px 0px -6% 0px', threshold: 0.05 });
+      cards.forEach(function (el) { io.observe(el); });
+
+      // An entrance animation must never be able to hide the work for good — if the observer
+      // never fires (background tab produces no frames), show everything anyway.
+      setTimeout(function () {
+        if (fired) return;
+        cards.forEach(function (el) {
+          io.unobserve(el);
+          el.style.transition = 'opacity 0.4s ease';
+          el.style.opacity = '1';
+          el.style.transform = 'none';
+        });
+      }, 3000);
+    }
+    document.addEventListener('page:revealed', start, { once: true });
+    setTimeout(start, 6000);   // last resort if the reveal event never arrives
+  })();
+  </script>
+
+  <script>
+  // work filter — each card's first tag is already Internal or External, so nothing
+  // needs re-tagging; we just read it. The reel is pinned and shows under every filter.
+  (function () {
+    var wrap = document.querySelector('.work-filter');
+    var work = document.querySelector('.work');
+    if (!wrap || !work) return;
+    var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var cards = Array.prototype.filter.call(work.children, function (el) {
+      return el !== wrap;
+    });
+    cards.forEach(function (el) {
+      var tag = el.querySelector('.tag');
+      el.dataset.kind = el.hasAttribute('data-pinned') ? 'pinned'
+                      : (tag ? tag.textContent.trim() : 'pinned');
+    });
+    wrap.addEventListener('click', function (e) {
+      var btn = e.target.closest('button[data-filter]');
+      if (!btn) return;
+      var want = btn.dataset.filter;
+      Array.prototype.forEach.call(wrap.querySelectorAll('button'), function (b) {
+        b.setAttribute('aria-pressed', String(b === btn));
+      });
+      var shown = [];
+      cards.forEach(function (el) {
+        var show = want === 'all' || el.dataset.kind === 'pinned' || el.dataset.kind === want;
+        el.hidden = !show;
+        if (show) shown.push(el);
+      });
+      work.scrollTop = 0;
+      // Clear whatever the load-in animation left inline so the resting state is visible,
+      // then let a keyframe animation do the lift. Animations outrank inline styles, and a
+      // synchronous reflow restarts them — no requestAnimationFrame, which would never fire
+      // in a backgrounded tab and would strand every card at opacity 0.
+      // Every shown card gets its inline load-in styles cleared, so nothing can be left
+      // stranded at opacity 0 — including the reel, which the load-in observer may not
+      // have reached. Only the unpinned ones then get the lift; the reel stays put.
+      shown.forEach(function (el) {
+        el.style.transition = '';
+        el.style.opacity = '';
+        el.style.transform = '';
+        el.style.animation = 'none';
+      });
+      var animate = shown.filter(function (el) { return el.dataset.kind !== 'pinned'; });
+      void work.offsetWidth;
+      if (reduceMotion) return;
+      animate.forEach(function (el, i) {
+        el.style.animation = 'workIn 0.5s cubic-bezier(0.22, 1, 0.36, 1) ' +
+                             (Math.min(i, 6) * 55) + 'ms both';
+      });
+    });
+  })();
+  </script>
+
+  <script>
   // desktop: the work panel is effectively the page's scroll, so forward the wheel to it
   // from anywhere on the page — not just when the cursor is over the panel itself
   (function () {
@@ -1160,8 +1373,44 @@
   (function () {
     var html = document.documentElement;
     function reveal() { html.classList.remove('js-typing'); }
+
+    // Fade out before any same-site navigation so the outgoing and incoming halves meet.
+    // Bound before every early return, so it works whether or not the splash runs.
+    document.addEventListener('click', function (e) {
+      if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+      var a = e.target && e.target.closest ? e.target.closest('a') : null;
+      if (!a || a.target === '_blank' || a.hasAttribute('download')) return;
+      var href = a.getAttribute('href');
+      if (!href || href.charAt(0) === '#' || /^(mailto:|tel:)/i.test(href)) return;
+      var url;
+      try { url = new URL(href, location.href); } catch (err) { return; }
+      if (url.origin !== location.origin) return;
+      e.preventDefault();
+      try { sessionStorage.setItem('internalNav', '1'); } catch (err) {}
+      html.classList.add('page-leaving');
+      setTimeout(function () { location.href = url.href; }, 520);
+    });
     var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    if (reduce) { reveal(); return; }
+    if (reduce) { reveal(); document.dispatchEvent(new Event('page:revealed')); return; }
+
+    // The splash is for ARRIVING: typed URL, external link, or refresh.
+    // A click between our own pages sets a one-shot flag just before navigating and we
+    // consume it here. Sniffing document.referrer / navigation type was unreliable —
+    // Safari does not always report a same-origin referrer on a scripted navigation.
+    var internal = false;
+    try {
+      internal = sessionStorage.getItem('internalNav') === '1';
+      sessionStorage.removeItem('internalNav');   // consumed, so a later refresh counts as arriving
+    } catch (e) {}
+    if (internal) {
+      html.classList.add('page-enter');
+      reveal();
+      document.dispatchEvent(new Event('page:revealed'));
+      requestAnimationFrame(function () {
+        requestAnimationFrame(function () { html.classList.add('page-enter-active'); });
+      });
+      return;
+    }
 
     function run() {
       try {
@@ -1176,14 +1425,6 @@
         // only the logo types out; everything else fades in together once it lands
         var fadeEls = Array.prototype.filter.call(document.body.children, function (el) {
           return el !== logo && el.tagName !== 'SCRIPT';
-        });
-
-        // the work cards stagger in on top of the page-wide fade. Hidden here in JS rather than
-        // in CSS so a no-JS or reduced-motion load still renders them normally.
-        var workCards = Array.prototype.slice.call(document.querySelectorAll('.work > *'));
-        workCards.forEach(function (el) {
-          el.style.opacity = '0';
-          el.style.transform = 'translateY(16px)';
         });
 
         // snapshot the logo's content, then empty it
@@ -1264,40 +1505,7 @@
                 el.style.transition = 'opacity 1.3s ease';
                 el.style.opacity = '1';
               });
-              // Hand the cards to an observer instead of revealing them all at once. The ones
-              // already on screen arrive together (staggered); the rest wait until you scroll
-              // to them. Same treatment either way, so the page never changes character.
-              if ('IntersectionObserver' in window) {
-                var fired = false;
-                var io = new IntersectionObserver(function (entries) {
-                  var arrived = entries.filter(function (e) { return e.isIntersecting; });
-                  if (arrived.length) { fired = true; }
-                  arrived.forEach(function (entry, i) {
-                    var el = entry.target;
-                    io.unobserve(el);
-                    var d = 120 + i * 90;   // 1 entry when scrolling in, so effectively no stagger there
-                    el.style.transition = 'opacity 0.55s ease ' + d + 'ms, ' +
-                                          'transform 0.75s cubic-bezier(0.22, 1, 0.36, 1) ' + d + 'ms';
-                    el.style.opacity = '1';
-                    el.style.transform = 'none';
-                  });
-                }, { rootMargin: '0px 0px -6% 0px', threshold: 0.05 });
-                workCards.forEach(function (el) { io.observe(el); });
-                // Safety net: an entrance animation must never be able to hide the work for good.
-                // If the observer hasn't fired at all shortly after setup — e.g. the page loaded in
-                // a background tab, where no frames are produced — just show everything.
-                setTimeout(function () {
-                  if (fired) return;
-                  workCards.forEach(function (el) {
-                    io.unobserve(el);
-                    el.style.transition = 'opacity 0.4s ease';
-                    el.style.opacity = '1';
-                    el.style.transform = 'none';
-                  });
-                }, 2500);
-              } else {
-                workCards.forEach(function (el) { el.style.opacity = ''; el.style.transform = ''; });
-              }
+              document.dispatchEvent(new Event('page:revealed'));
               if (reelVideo) {
                 var pp = reelVideo.play && reelVideo.play();
                 if (pp && pp.catch) pp.catch(function () {});

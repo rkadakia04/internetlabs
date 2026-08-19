@@ -29,6 +29,10 @@
 <style>
   html { -webkit-text-size-adjust: 100%; }
   html.js-typing body { visibility: hidden; }
+  /* page-to-page navigation fades through white instead of replaying the splash */
+  html.page-enter body { opacity: 0; }
+  html.page-enter.page-enter-active body { opacity: 1; transition: opacity 0.85s ease; }
+  html.page-leaving body { opacity: 0; transition: opacity 0.55s ease; }
   .caret {
     display: inline-block;
     width: 13px;
@@ -87,7 +91,8 @@
   }
   li { margin-bottom: 7px; }
   .inactive { color: #666; text-decoration: none; cursor: default; }  /* not a link yet */
-  .blue { color: #1a52e0; text-decoration: none; cursor: default; }   /* active, but not linked */
+  li.gap { margin-top: 20px; }   /* separates live products from retired ones, no label needed */
+  .blue { color: #1a52e0; text-decoration: none; }   /* active products — linked */
   .outro { margin-top: 48px; }
   @media (max-width: 1024px) {
     .intro, p { max-width: 330px; }
@@ -100,25 +105,20 @@
 
   <p class="intro">Internet is a company founded by <a class="live" href="https://rokadakia.com" target="_blank" rel="noopener">Rohan&nbsp;Kadakia</a>.</p>
 
-  <p class="intro">We know how to build, scale, and monetize beautiful products regardless of niche, and have products in the spaces of wellness, finance, religion, and&nbsp;more.</p>
+  <p class="intro">We know how to build, scale, and monetize beautiful products regardless of niche, and have products in wellness, lifestyle, and&nbsp;more.</p>
 
-  <p class="intro">Some products are lighthearted and have shorter lifespans, while others are more mature and operate on longer time&nbsp;horizons.</p>
+  <p class="intro">Some products are lighthearted and have shorter lifespans, while others operate on longer time&nbsp;horizons.</p>
 
-  <p class="intro">The following list includes both monetized and unmonetized products, and does not include iOS apps or web apps in&nbsp;stealth.</p>
+  <p class="intro">We can consult for you too. <a class="live" href="consulting.html">Learn more</a>.</p>
 
-  <p class="intro">Active:</p>
-
-  <ul>
-    <li>🐾 <span class="blue">paws</span> — your pet, wrapped</li>
-    <li>⛳ <span class="blue">golf</span> — minigolf in imessage</li>
-    <li>🌱 <span class="blue">plant</span> — gamified self care</li>
-  </ul>
-
-  <p class="intro">Inactive:</p>
+  <p class="intro">The following list does not include iOS apps or web apps in&nbsp;stealth.</p>
 
   <ul>
+    <li>💥 <a class="blue" href="https://strips.camera" target="_blank" rel="noopener">Strips</a> — the everything camera</li>
+    <li>🐾 <a class="blue" href="https://apps.apple.com/us/app/paws-pet-wrapped/id6786887446" target="_blank" rel="noopener">Paws</a> — your pet, wrapped</li>
+    <li>🌱 <a class="blue" href="https://apps.apple.com/us/app/plant-self-care/id6760047919" target="_blank" rel="noopener">Plant</a> — gamified self care</li>
+    <li class="gap">🍄 <span class="inactive">Bodega</span> — brain fog gummies</li>
     <li>🪑 <span class="inactive">RAHA</span> — contemporary furniture</li>
-    <li>🍄 <span class="inactive">bodega</span> — gummies for brain fog</li>
     <li>🧼 <span class="inactive">Nusol</span> — premium skincare</li>
     <li>💧 <span class="inactive">Expensive</span> — $200 water</li>
   </ul>
@@ -129,8 +129,43 @@
   (function () {
     var html = document.documentElement;
     function reveal() { html.classList.remove('js-typing'); }
+
+    // Fade out before any same-site navigation so the outgoing and incoming halves meet.
+    // Bound before every early return, so it works whether or not the splash runs.
+    document.addEventListener('click', function (e) {
+      if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+      var a = e.target && e.target.closest ? e.target.closest('a') : null;
+      if (!a || a.target === '_blank' || a.hasAttribute('download')) return;
+      var href = a.getAttribute('href');
+      if (!href || href.charAt(0) === '#' || /^(mailto:|tel:)/i.test(href)) return;
+      var url;
+      try { url = new URL(href, location.href); } catch (err) { return; }
+      if (url.origin !== location.origin) return;
+      e.preventDefault();
+      try { sessionStorage.setItem('internalNav', '1'); } catch (err) {}
+      html.classList.add('page-leaving');
+      setTimeout(function () { location.href = url.href; }, 520);
+    });
     var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     if (reduce) { reveal(); return; }
+
+    // The splash is for ARRIVING: typed URL, external link, or refresh.
+    // A click between our own pages sets a one-shot flag just before navigating and we
+    // consume it here. Sniffing document.referrer / navigation type was unreliable —
+    // Safari does not always report a same-origin referrer on a scripted navigation.
+    var internal = false;
+    try {
+      internal = sessionStorage.getItem('internalNav') === '1';
+      sessionStorage.removeItem('internalNav');   // consumed, so a later refresh counts as arriving
+    } catch (e) {}
+    if (internal) {
+      html.classList.add('page-enter');
+      reveal();
+      requestAnimationFrame(function () {
+        requestAnimationFrame(function () { html.classList.add('page-enter-active'); });
+      });
+      return;
+    }
 
     function run() {
       try {
