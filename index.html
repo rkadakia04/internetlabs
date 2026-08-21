@@ -360,7 +360,7 @@
   a:hover { text-decoration: underline; }
   .live { text-decoration: underline; }              /* real, active links */
   .inactive { color: #666; text-decoration: none; cursor: default; } /* gray — not a link */
-  .blue { color: #1a52e0; text-decoration: none; }   /* active products — linked */
+  .blue { color: #1a52e0; text-decoration: none; cursor: default; }   /* active products, not linked */
   .intro { max-width: 360px; }
   .viewmore { margin-top: -8px; }
   .akira {
@@ -645,9 +645,9 @@
   <p class="intro">Products:</p>
 
   <ul>
-    <li>💥 <a class="blue" href="https://strips.camera" target="_blank" rel="noopener">Strips</a> — the everything camera</li>
-    <li>🐾 <a class="blue" href="https://apps.apple.com/us/app/paws-pet-wrapped/id6786887446" target="_blank" rel="noopener">Paws</a> — your pet, wrapped</li>
-    <li>🌱 <a class="blue" href="https://apps.apple.com/us/app/plant-self-care/id6760047919" target="_blank" rel="noopener">Plant</a> — gamified self care</li>
+    <li>💥 <span class="blue">Strips</span> — the everything camera</li>
+    <li>🐾 <span class="blue">Paws</span> — your pet, wrapped</li>
+    <li>🌱 <span class="blue">Plant</span> — gamified self care</li>
   </ul>
 
   <p class="viewall"><a href="about.html"><svg class="hook" viewBox="0 0 16 16" aria-hidden="true"><path d="M4.5 3v2.2a2.8 2.8 0 0 0 2.8 2.8H13"/><path d="M10.3 5.2 13 8l-2.7 2.8"/></svg>View all</a></p>

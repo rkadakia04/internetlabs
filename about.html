@@ -92,7 +92,7 @@
   li { margin-bottom: 7px; }
   .inactive { color: #666; text-decoration: none; cursor: default; }  /* not a link yet */
   li.gap { margin-top: 20px; }   /* separates live products from retired ones, no label needed */
-  .blue { color: #1a52e0; text-decoration: none; }   /* active products — linked */
+  .blue { color: #1a52e0; text-decoration: none; cursor: default; }   /* active products, not linked */
   .outro { margin-top: 48px; }
   @media (max-width: 1024px) {
     .intro, p { max-width: 330px; }
@@ -114,9 +114,9 @@
   <p class="intro">The following list does not include iOS apps or web apps in&nbsp;stealth.</p>
 
   <ul>
-    <li>💥 <a class="blue" href="https://strips.camera" target="_blank" rel="noopener">Strips</a> — the everything camera</li>
-    <li>🐾 <a class="blue" href="https://apps.apple.com/us/app/paws-pet-wrapped/id6786887446" target="_blank" rel="noopener">Paws</a> — your pet, wrapped</li>
-    <li>🌱 <a class="blue" href="https://apps.apple.com/us/app/plant-self-care/id6760047919" target="_blank" rel="noopener">Plant</a> — gamified self care</li>
+    <li>💥 <span class="blue">Strips</span> — the everything camera</li>
+    <li>🐾 <span class="blue">Paws</span> — your pet, wrapped</li>
+    <li>🌱 <span class="blue">Plant</span> — gamified self care</li>
     <li class="gap">🍄 <span class="inactive">Bodega</span> — brain fog gummies</li>
     <li>🪑 <span class="inactive">RAHA</span> — contemporary furniture</li>
     <li>🧼 <span class="inactive">Nusol</span> — premium skincare</li>
