@@ -56,6 +56,7 @@
     --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     --card: #f5f5f5;      /* work card / pill background */
     --card-hi: #ededed;   /* same, one step darker — hover */
+    --reel-bg: #efefef;   /* reel card ground — one knob to tune the whole card */
   }
   /* 24px everywhere — matches the live site. Bump this to widen the whole page gutter at once. */
   body {
@@ -260,6 +261,33 @@
   @keyframes workIn {
     from { opacity: 0; transform: translateY(12px); }
     to   { opacity: 1; transform: none; }
+  }
+  /* "We've built:" — one line that pops between products */
+  .built { margin-bottom: 10px; }
+  .cycler {
+    position: relative;
+    min-height: 1.6em;      /* reserve the line so nothing below it jumps as items swap */
+    margin-bottom: 26px;
+  }
+  .cycle-item {
+    position: absolute;
+    top: 0;
+    left: 0;
+    white-space: nowrap;
+    opacity: 0;
+    /* scales from its own left edge, not the page's — the line is left-aligned, so a
+       centre origin would make it drift sideways as it pops */
+    transform-origin: left center;
+    transform: scale(0.9);
+    transition: opacity 0.16s ease, transform 0.26s cubic-bezier(0.34, 1.56, 0.64, 1);
+    pointer-events: none;
+  }
+  .cycle-item.is-on {
+    opacity: 1;
+    transform: scale(1);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .cycle-item { transition: none; }
   }
   /* work — cards in a grey tray, caption sits outside/below in sans */
   .work {
@@ -480,37 +508,46 @@
   .reel-card {
     display: flex;
     align-items: center;
-    gap: 22px;
+    gap: 18px;
     cursor: pointer;
     position: relative;      /* anchors the expand icon */
-    background: #fafafa;     /* a step lighter than the tag chips and mobile nav pills */
+    padding: 16px;           /* tighter than the 20px work-card default */
+    background: var(--reel-bg);   /* muted ground so white type reads as a panel, not a page */
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.02), 0 8px 22px rgba(0, 0, 0, 0.028);
   }
   /* affordance only — the whole card is already the click target */
+  /* a soft glass chip, the way iOS floats a control over content */
   .reel-expand {
     position: absolute;
-    top: 15px;
-    right: 17px;
-    width: 15px;
-    height: 15px;
-    color: #c9c9c9;
+    top: 12px;
+    right: 12px;
+    width: 26px;
+    height: 26px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    color: #fff;
+    background: rgba(0, 0, 0, 0.22);
+    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(8px);
     pointer-events: none;
-    transition: color 0.25s ease;
+    transition: color 0.25s ease, background 0.25s ease, transform 0.3s cubic-bezier(0.34, 1.4, 0.64, 1);
   }
   .reel-expand svg {
     display: block;
-    width: 100%;
-    height: 100%;
+    width: 13px;
+    height: 13px;
     fill: none;
     stroke: currentColor;
-    stroke-width: 1.7;
+    stroke-width: 1.8;
     stroke-linecap: round;
     stroke-linejoin: round;
   }
   .reel-thumb {
     position: relative;            /* anchors the play glyph and runtime badge */
-    flex: 0 0 160px;
-    width: 160px;
+    flex: 0 0 130px;
+    width: 130px;
     aspect-ratio: 16 / 9;          /* 1920 x 1080 */
     overflow: hidden;
     cursor: pointer;
@@ -527,8 +564,8 @@
     left: 50%;
     top: 50%;
     transform: translate(-50%, -50%);
-    width: 32px;
-    height: 32px;
+    width: 28px;
+    height: 28px;
     border-radius: 50%;
     background: rgba(255, 255, 255, 0.82);
     -webkit-backdrop-filter: blur(2px);
@@ -540,12 +577,12 @@
     pointer-events: none;
     transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1), background 0.25s ease;
   }
-  .reel-play svg { width: 15px; height: 15px; display: block; fill: #111; margin-left: 1px; }
+  .reel-play svg { width: 13px; height: 13px; display: block; fill: #111; margin-left: 1px; }
   /* runtime lives on the card, in the meta column — sits where a work card's tags would */
   .reel-dur {
     display: block;
-    margin-top: 14px;
-    color: #aaa;
+    margin-top: 6px;
+    color: #8a8a8a;
     font-size: 13px;
     line-height: 1.5;
     opacity: 0;                    /* stays hidden until a real duration is known */
@@ -554,8 +591,8 @@
   .reel-dur.ready { opacity: 1; }
   @media (hover: hover) and (pointer: fine) {
     .reel-card:hover .reel-play { transform: translate(-50%, -50%) scale(1.12); background: #fff; }
-    .reel-card:hover .reel-expand { color: #8a8a8a; }
-    .reel-card:hover .name-play { fill: #8a8a8a; stroke: #8a8a8a; }
+    .reel-card:hover .reel-expand { background: rgba(0, 0, 0, 0.34); transform: scale(1.08); }
+    .reel-card:hover .name-play { fill: #6e6e6e; stroke: #6e6e6e; }
   }
   .reel-meta { font-family: var(--sans); letter-spacing: 0; }
   .reel-meta .name {
@@ -571,8 +608,8 @@
     width: 13px;
     height: 13px;
     flex: none;
-    fill: #c4c4c4;
-    stroke: #c4c4c4;
+    fill: #a2a2a2;
+    stroke: #a2a2a2;
     stroke-width: 2.4;            /* rounds the tips without shrinking the triangle */
     stroke-linejoin: round;
     transition: fill 0.25s ease, stroke 0.25s ease;
@@ -583,7 +620,7 @@
     max-width: 300px;      /* wraps earlier so the block sits tighter under the title */
     color: #666;
     font-size: 14px;
-    line-height: 1.5;
+    line-height: 1.45;
     text-wrap: pretty;
   }
   @media (hover: hover) and (pointer: fine) {
@@ -630,7 +667,7 @@
       position: static;
       margin-top: 64px;
     }
-    .reel-thumb { flex-basis: 140px; width: 140px; }
+    .reel-thumb { flex-basis: 114px; width: 114px; }
   }
 </style>
 </head>
@@ -638,19 +675,17 @@
 
   <h1><a href="index.html">internet</a></h1>
 
-  <p class="intro">Internet is a company that builds companies. We build our own beautiful, viral consumer software and products.</p>
+  <p class="intro">We are a design and venture company.<br><br>We design brands, apps, and consumer products for ourselves and for&nbsp;others.</p>
 
-  <p class="intro">We also have a consulting arm in which we think, design, and develop for brands and businesses. <a class="live" href="consulting.html">Learn more</a>.</p>
+  <p class="intro">Across our internal portfolio, we’ve built and scaled products in health, wellness, social, and&nbsp;lifestyle.</p>
 
-  <p class="intro">Products:</p>
+  <p class="intro">Select clients include: Drake, TAG Heuer, Travis Scott, Roots, Open Purpose, Polymarket, McDonald’s, Meter, Sandbar, Clout, Chai&nbsp;Discovery. <a class="live" href="consulting.html">Learn more</a>.</p>
 
-  <ul>
-    <li>💥 <span class="blue">Strips</span> — the everything camera</li>
-    <li>🐾 <span class="blue">Paws</span> — your pet, wrapped</li>
-    <li>🌱 <span class="blue">Plant</span> — gamified self care</li>
-  </ul>
+  <p class="intro built">Products:</p>
 
-  <p class="viewall"><a href="about.html"><svg class="hook" viewBox="0 0 16 16" aria-hidden="true"><path d="M4.5 3v2.2a2.8 2.8 0 0 0 2.8 2.8H13"/><path d="M10.3 5.2 13 8l-2.7 2.8"/></svg>View all</a></p>
+  <p class="intro cycler" id="builtCycle" aria-live="off">
+    <span class="cycle-item is-on">💥 <span class="blue">Strips</span> — the everything camera</span>
+  </p>
 
   <p><a class="live" href="mailto:hi@internetlabs.co">hi@internetlabs.co</a></p>
 
@@ -674,7 +709,7 @@
 
     <div class="work-card reel-card" id="reelThumbCard" data-pinned>
       <span class="reel-expand" aria-hidden="true">
-        <svg viewBox="0 0 16 16"><path d="M6.5 2h-4.5v4.5M9.5 2h4.5v4.5M9.5 14h4.5v-4.5M6.5 14h-4.5v-4.5"/></svg>
+        <svg viewBox="0 0 16 16"><path d="M6.4 2.6H4.2A1.6 1.6 0 0 0 2.6 4.2v2.2M9.6 2.6h2.2A1.6 1.6 0 0 1 13.4 4.2v2.2M9.6 13.4h2.2a1.6 1.6 0 0 0 1.6-1.6V9.6M6.4 13.4H4.2a1.6 1.6 0 0 1-1.6-1.6V9.6"/></svg>
       </span>
       <div class="reel-thumb" id="reelThumb" role="button" tabindex="0" aria-label="Play reel">
         <video id="reelVideo" src="reel.mp4?v=2" poster="poster.jpg?v=2" muted loop autoplay playsinline preload="auto"></video>
@@ -684,7 +719,7 @@
       </div>
       <div class="reel-meta">
         <span class="name">View Reel<svg class="name-play" viewBox="0 0 10 10" aria-hidden="true"><path d="M2.7 2.3v5.4L7.5 5z"/></svg></span>
-        <span class="desc">A sizzle reel of products that Internet has built and shipped so far.</span>
+        <span class="desc">Everything we have built so far.</span>
         <span class="reel-dur" id="reelDur"></span>
       </div>
     </div>
@@ -699,28 +734,12 @@
              muted loop autoplay playsinline preload="auto"></video>
       <figcaption class="work-cap">
         <span class="name">21 things we like</span>
-        <span class="desc">An ongoing research document on consumer products and psychology.</span>
+        <span class="desc">An ongoing research document on internet culture, consumer products, and psychology.</span>
         <span class="tags"><span class="tag">Internal</span><span class="tag">Research</span></span>
       </figcaption>
     </figure>
     <figure class="work-item">
-      <img class="work-media" src="bodega-brand.jpg" alt="bodega — brain fog gummies" />
-      <figcaption class="work-cap">
-        <span class="name">Bodega</span>
-        <span class="desc">Gummies made with strains of different mushrooms to help with brain fog, gut health, and mood.</span>
-        <span class="tags"><span class="tag">Internal</span><span class="tag">Wellness</span></span>
-      </figcaption>
-    </figure>
-    <figure class="work-item">
-      <img class="work-media" src="bodega-gummy.jpg" alt="bodega gummy held between two fingers" />
-      <figcaption class="work-cap">
-        <span class="name">Bodega</span>
-        <span class="desc">Gummies made with strains of different mushrooms to help with brain fog, gut health, and mood.</span>
-        <span class="tags"><span class="tag">Internal</span><span class="tag">Wellness</span></span>
-      </figcaption>
-    </figure>
-    <figure class="work-item">
-      <img class="work-media" src="PawsV2.jpg" alt="paws — your pet's health, wrapped" />
+      <img class="work-media" src="paws1.jpg" alt="paws mark" />
       <figcaption class="work-cap">
         <span class="name">Paws</span>
         <span class="desc">Receive insights on your pet's health, stats, and more in a wrapped format.</span>
@@ -736,11 +755,27 @@
       </figcaption>
     </figure>
     <figure class="work-item">
-      <img class="work-media" src="paws1.jpg" alt="paws mark" />
+      <img class="work-media" src="PawsV2.jpg" alt="paws — your pet's health, wrapped" />
       <figcaption class="work-cap">
         <span class="name">Paws</span>
         <span class="desc">Receive insights on your pet's health, stats, and more in a wrapped format.</span>
         <span class="tags"><span class="tag">Internal</span><span class="tag">Pets</span></span>
+      </figcaption>
+    </figure>
+    <figure class="work-item">
+      <img class="work-media" src="bodega-gummy.jpg" alt="bodega gummy held between two fingers" />
+      <figcaption class="work-cap">
+        <span class="name">Bodega</span>
+        <span class="desc">Gummies made with strains of different mushrooms to help with brain fog, gut health, and mood.</span>
+        <span class="tags"><span class="tag">Internal</span><span class="tag">Wellness</span></span>
+      </figcaption>
+    </figure>
+    <figure class="work-item">
+      <img class="work-media" src="bodega-brand.jpg" alt="bodega — brain fog gummies" />
+      <figcaption class="work-cap">
+        <span class="name">Bodega</span>
+        <span class="desc">Gummies made with strains of different mushrooms to help with brain fog, gut health, and mood.</span>
+        <span class="tags"><span class="tag">Internal</span><span class="tag">Wellness</span></span>
       </figcaption>
     </figure>
     <figure class="work-item">
@@ -882,7 +917,7 @@
     <figure class="work-item">
       <img class="work-media" src="chai.jpg" alt="Chai Discovery — wordmark" />
       <figcaption class="work-cap">
-        <span class="name">Chai</span>
+        <span class="name">Chai Discovery</span>
         <span class="desc">Available on request.</span>
         <span class="tags"><span class="tag">External</span><span class="tag">Healthcare</span></span>
       </figcaption>
@@ -1158,6 +1193,50 @@
     document.addEventListener('visibilitychange', resumeIfVisible);
     window.addEventListener('pageshow', resumeIfVisible);
     window.addEventListener('focus', resumeIfVisible);
+  })();
+  </script>
+
+  <script>
+  // "We've built:" cycles through the portfolio one product at a time. Items are built
+  // here rather than in markup so the line degrades to a single static product with JS off.
+  (function () {
+    var host = document.getElementById('builtCycle');
+    if (!host) return;
+    var ITEMS = [
+      ['💥', 'Strips',    'the everything camera'],
+      ['🐾', 'Paws',      'your pet, wrapped'],
+      ['🌱', 'Plant',     'gamified self care'],
+      ['🍄', 'Bodega',    'brain fog gummies'],
+      ['🪑', 'RAHA',      'contemporary furniture'],
+      ['🧼', 'Nusol',     'premium skincare'],
+      ['💧', 'Expensive', '$200 water']
+    ];
+    var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    host.innerHTML = '';
+    var nodes = ITEMS.map(function (it, i) {
+      var el = document.createElement('span');
+      el.className = 'cycle-item' + (i === 0 ? ' is-on' : '');
+      var desc = it[2].charAt(0).toUpperCase() + it[2].slice(1);
+      el.innerHTML = it[0] + ' <span class="blue">' + it[1] + ':</span> ' + desc;
+      host.appendChild(el);
+      return el;
+    });
+    if (reduce || nodes.length < 2) return;   // leave the first one showing
+
+    var i = 0, timer = null;
+    function step() {
+      nodes[i].classList.remove('is-on');
+      i = (i + 1) % nodes.length;
+      nodes[i].classList.add('is-on');
+    }
+    function start() { if (!timer) timer = setInterval(step, 1800); }
+    function stop() { clearInterval(timer); timer = null; }
+    start();
+    // don't burn cycles animating a tab nobody is looking at
+    document.addEventListener('visibilitychange', function () {
+      if (document.visibilityState === 'visible') start(); else stop();
+    });
   })();
   </script>
 
