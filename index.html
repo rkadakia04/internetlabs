@@ -381,8 +381,11 @@
     .work-item { width: 100%; }
     /* more air between projects — both values move together so the caption stays
        centred in the gap rather than drifting back toward the image above it */
-    .work { gap: 48px; }
-    .work-cap { margin-top: 48px; }
+    /* gap and caption margin move together — that pairing is what keeps each caption
+       centred between two cards. Tightened from 48 so the second card still peeks above
+       the fold on shorter laptop screens. */
+    .work { gap: 32px; }
+    .work-cap { margin-top: 32px; }
   }
   a { color: #1a52e0; text-decoration: none; }
   a:hover { text-decoration: underline; }
@@ -679,7 +682,7 @@
 
   <p class="intro">Across our internal portfolio, we’ve built and scaled products in health, wellness, social, and&nbsp;lifestyle.</p>
 
-  <p class="intro">Select clients include: Drake, TAG Heuer, Travis Scott, Roots, Open Purpose, Polymarket, McDonald’s, Meter, Sandbar, Clout, Chai&nbsp;Discovery. <a class="live" href="consulting.html">Learn more</a>.</p>
+  <p class="intro">Clients include: Drake, TAG Heuer, Travis Scott, Roots, Open Purpose, Polymarket, McDonald’s, Meter, Sandbar, Clout, Chai&nbsp;Discovery. <a class="live" href="consulting.html">Learn more</a>.</p>
 
   <p class="intro built">Products:</p>
 
