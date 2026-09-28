@@ -56,7 +56,7 @@
     --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     --card: #f5f5f5;      /* work card / pill background */
     --card-hi: #ededed;   /* same, one step darker — hover */
-    --reel-bg: #efefef;   /* reel card ground — one knob to tune the whole card */
+    --reel-bg: #f4f4f4;   /* reel card ground — one knob to tune the whole card */
   }
   /* 24px everywhere — matches the live site. Bump this to widen the whole page gutter at once. */
   body {
@@ -411,6 +411,16 @@
   }
   /* sits directly above the PDF link, same voice as "Products:" up the column */
   .addl { margin: 0 0 10px; max-width: none; }
+  /* breathing room between the reel card and the Additional block below it */
+  /* hug the content instead of stretching to the column — the stretched version left
+     270px of dead space to the right of "View Reel", which is what made it read as a slab */
+  .akira .reel-card {
+    margin-bottom: 34px;
+    width: fit-content;
+    padding: 12px 22px 12px 12px;   /* extra room to the right of the label */
+    gap: 16px;
+    border-radius: 16px;
+  }
   .akira figcaption {
     margin-top: 8px;
     margin-left: -2px;
@@ -516,7 +526,6 @@
     position: relative;      /* anchors the expand icon */
     padding: 16px;           /* tighter than the 20px work-card default */
     background: var(--reel-bg);   /* muted ground so white type reads as a panel, not a page */
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.02), 0 8px 22px rgba(0, 0, 0, 0.028);
   }
   /* affordance only — the whole card is already the click target */
   /* a soft glass chip, the way iOS floats a control over content */
@@ -595,27 +604,28 @@
   @media (hover: hover) and (pointer: fine) {
     .reel-card:hover .reel-play { transform: translate(-50%, -50%) scale(1.12); background: #fff; }
     .reel-card:hover .reel-expand { background: rgba(0, 0, 0, 0.34); transform: scale(1.08); }
-    .reel-card:hover .name-play { fill: #6e6e6e; stroke: #6e6e6e; }
+    .reel-card:hover .name-play { stroke: #6e6e6e; }
   }
   .reel-meta { font-family: var(--sans); letter-spacing: 0; }
   .reel-meta .name {
     display: flex;
     align-items: center;
     gap: 7px;
-    color: #111;
-    font-size: 14px;      /* same size as the description below it */
+    color: #6e6e6e;       /* the arrow hover grey, so the label sits a step darker */
+    font-size: 14px;
     line-height: 1.5;
   }
   /* decorative only — the card is the click target */
   .name-play {
-    width: 13px;
-    height: 13px;
+    width: 14px;
+    height: 14px;
     flex: none;
-    fill: #a2a2a2;
+    fill: none;
     stroke: #a2a2a2;
-    stroke-width: 2.4;            /* rounds the tips without shrinking the triangle */
+    stroke-width: 1.7;
+    stroke-linecap: round;
     stroke-linejoin: round;
-    transition: fill 0.25s ease, stroke 0.25s ease;
+    transition: stroke 0.25s ease;
   }
   .reel-meta .desc {
     display: block;
@@ -709,23 +719,6 @@
   </nav>
 
   <div class="work" aria-label="Selected work">
-
-    <div class="work-card reel-card" id="reelThumbCard" data-pinned>
-      <span class="reel-expand" aria-hidden="true">
-        <svg viewBox="0 0 16 16"><path d="M6.4 2.6H4.2A1.6 1.6 0 0 0 2.6 4.2v2.2M9.6 2.6h2.2A1.6 1.6 0 0 1 13.4 4.2v2.2M9.6 13.4h2.2a1.6 1.6 0 0 0 1.6-1.6V9.6M6.4 13.4H4.2a1.6 1.6 0 0 1-1.6-1.6V9.6"/></svg>
-      </span>
-      <div class="reel-thumb" id="reelThumb" role="button" tabindex="0" aria-label="Play reel">
-        <video id="reelVideo" src="reel.mp4?v=2" poster="poster.jpg?v=2" muted loop autoplay playsinline preload="auto"></video>
-        <span class="reel-play" aria-hidden="true">
-          <svg viewBox="0 0 24 24"><path d="M9 6.8v10.4L17.5 12z"/></svg>
-        </span>
-      </div>
-      <div class="reel-meta">
-        <span class="name">View Reel<svg class="name-play" viewBox="0 0 10 10" aria-hidden="true"><path d="M2.7 2.3v5.4L7.5 5z"/></svg></span>
-        <span class="desc">Everything we have built so far.</span>
-        <span class="reel-dur" id="reelDur"></span>
-      </div>
-    </div>
 
     <div class="work-filter" role="group" aria-label="Filter work">
       <button type="button" data-filter="all" aria-pressed="true">All</button>
@@ -821,11 +814,27 @@
       </figcaption>
     </figure>
     <figure class="work-item">
-      <img class="work-media" src="pocket.jpg" alt="Pocket — mark" />
+      <img class="work-media" src="hera-icon.png" alt="Hera — app icon" />
       <figcaption class="work-cap">
-        <span class="name">Pocket</span>
-        <span class="desc">Wellness and breathwork software. Coming soon.</span>
-        <span class="tags"><span class="tag">Internal</span><span class="tag">Wellness</span></span>
+        <span class="name">Hera</span>
+        <span class="desc">Product design for a pregnancy support and wellness app.</span>
+        <span class="tags"><span class="tag">External</span><span class="tag">Healthcare</span></span>
+      </figcaption>
+    </figure>
+    <figure class="work-item">
+      <img class="work-media" src="hera-close.png" alt="Hera — interface detail" />
+      <figcaption class="work-cap">
+        <span class="name">Hera</span>
+        <span class="desc">Product design for a pregnancy support and wellness app.</span>
+        <span class="tags"><span class="tag">External</span><span class="tag">Healthcare</span></span>
+      </figcaption>
+    </figure>
+    <figure class="work-item">
+      <img class="work-media" src="hera-spread.png" alt="Hera — screens" />
+      <figcaption class="work-cap">
+        <span class="name">Hera</span>
+        <span class="desc">Product design for a pregnancy support and wellness app.</span>
+        <span class="tags"><span class="tag">External</span><span class="tag">Healthcare</span></span>
       </figcaption>
     </figure>
     <figure class="work-item">
@@ -842,6 +851,14 @@
         <span class="name">Expensive</span>
         <span class="desc">$200 water.</span>
         <span class="tags"><span class="tag">Internal</span><span class="tag">Luxury Goods</span></span>
+      </figcaption>
+    </figure>
+    <figure class="work-item">
+      <img class="work-media" src="pocket.jpg" alt="Pocket — mark" />
+      <figcaption class="work-cap">
+        <span class="name">Pocket</span>
+        <span class="desc">Wellness and breathwork software. Coming soon.</span>
+        <span class="tags"><span class="tag">Internal</span><span class="tag">Wellness</span></span>
       </figcaption>
     </figure>
     <figure class="work-item">
@@ -865,6 +882,38 @@
       <figcaption class="work-cap">
         <span class="name">Perpetual</span>
         <span class="desc">Identity for a future-forward healthcare company.</span>
+        <span class="tags"><span class="tag">External</span><span class="tag">Healthcare</span></span>
+      </figcaption>
+    </figure>
+    <figure class="work-item">
+      <img class="work-media" src="trunk.png" alt="Trunk — wordmark" />
+      <figcaption class="work-cap">
+        <span class="name">Trunk</span>
+        <span class="desc">Branding for a men's TRT company.</span>
+        <span class="tags"><span class="tag">External</span><span class="tag">Healthcare</span></span>
+      </figcaption>
+    </figure>
+    <figure class="work-item">
+      <img class="work-media" src="trunk-site.png" alt="Trunk — site design" />
+      <figcaption class="work-cap">
+        <span class="name">Trunk</span>
+        <span class="desc">Branding for a men's TRT company.</span>
+        <span class="tags"><span class="tag">External</span><span class="tag">Healthcare</span></span>
+      </figcaption>
+    </figure>
+    <figure class="work-item">
+      <img class="work-media" src="trunk-mock.png" alt="Trunk — packaging" />
+      <figcaption class="work-cap">
+        <span class="name">Trunk</span>
+        <span class="desc">Branding for a men's TRT company.</span>
+        <span class="tags"><span class="tag">External</span><span class="tag">Healthcare</span></span>
+      </figcaption>
+    </figure>
+    <figure class="work-item">
+      <img class="work-media" src="trunk-print.png" alt="Trunk — print" />
+      <figcaption class="work-cap">
+        <span class="name">Trunk</span>
+        <span class="desc">Branding for a men's TRT company.</span>
         <span class="tags"><span class="tag">External</span><span class="tag">Healthcare</span></span>
       </figcaption>
     </figure>
@@ -917,14 +966,6 @@
       </figcaption>
     </figure>
     <figure class="work-item">
-      <img class="work-media" src="arc-2.jpg" alt="Arc" />
-      <figcaption class="work-cap">
-        <span class="name">Arc</span>
-        <span class="desc">A piece of hardware proposed to Arc that lets you surf the internet, on a smaller screen.</span>
-        <span class="tags"><span class="tag">External</span><span class="tag">Technology</span><span class="tag">Proposal</span></span>
-      </figcaption>
-    </figure>
-    <figure class="work-item">
       <img class="work-media" src="chai.jpg" alt="Chai Discovery — wordmark" />
       <figcaption class="work-cap">
         <span class="name">Chai Discovery</span>
@@ -947,6 +988,18 @@
   </footer>
 
   <figure class="akira">
+  <div class="work-card reel-card" id="reelThumbCard" data-pinned>
+    <div class="reel-thumb" id="reelThumb" role="button" tabindex="0" aria-label="Play reel">
+      <video id="reelVideo" src="reel.mp4?v=2" poster="poster.jpg?v=2" muted loop autoplay playsinline preload="auto"></video>
+      <span class="reel-play" aria-hidden="true">
+        <svg viewBox="0 0 24 24"><path d="M9 6.8v10.4L17.5 12z"/></svg>
+      </span>
+    </div>
+    <div class="reel-meta">
+      <span class="name">View Reel<svg class="name-play" viewBox="0 0 16 16" aria-hidden="true"><path d="M5.2 10.8 10.8 5.2M6.1 5.2h4.7v4.7"/></svg></span>
+    </div>
+  </div>
+
     <p class="addl">Additional:</p>
     <figcaption><img class="pdficon" src="pdf.png" alt="PDF" /><a href="21-things-we-like.pdf" target="_blank" rel="noopener">21 things we like.pdf</a></figcaption>
     <p class="copyright">© 2026 Internet Companies, Inc.</p>
@@ -1478,6 +1531,21 @@
       try { sessionStorage.setItem('internalNav', '1'); } catch (err) {}
       html.classList.add('page-leaving');
       setTimeout(function () { location.href = url.href; }, 520);
+    });
+
+    // Back button. Safari restores from bfcache exactly as the page left — still carrying
+    // the fade-out class, so the body comes back at opacity 0 and looks hung. Rather than
+    // just clearing it, hand it to the same fade the forward navigation uses: page-leaving
+    // and page-enter both sit at opacity 0, so swapping them causes no flash, and
+    // page-enter-active on the next frame fades it up.
+    window.addEventListener('pageshow', function (e) {
+      if (!e.persisted) { html.classList.remove('page-leaving'); return; }
+      html.classList.remove('js-typing', 'page-enter-active');
+      html.classList.add('page-enter');
+      html.classList.remove('page-leaving');
+      var show = function () { html.classList.add('page-enter-active'); };
+      requestAnimationFrame(function () { requestAnimationFrame(show); });
+      setTimeout(show, 150);   // never leave the page hidden if rAF does not fire
     });
     var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     if (reduce) { reveal(); document.dispatchEvent(new Event('page:revealed')); return; }

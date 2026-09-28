@@ -122,6 +122,21 @@
       html.classList.add('page-leaving');
       setTimeout(function () { location.href = url.href; }, 520);
     });
+
+    // Back button. Safari restores from bfcache exactly as the page left — still carrying
+    // the fade-out class, so the body comes back at opacity 0 and looks hung. Rather than
+    // just clearing it, hand it to the same fade the forward navigation uses: page-leaving
+    // and page-enter both sit at opacity 0, so swapping them causes no flash, and
+    // page-enter-active on the next frame fades it up.
+    window.addEventListener('pageshow', function (e) {
+      if (!e.persisted) { html.classList.remove('page-leaving'); return; }
+      html.classList.remove('js-typing', 'page-enter-active');
+      html.classList.add('page-enter');
+      html.classList.remove('page-leaving');
+      var show = function () { html.classList.add('page-enter-active'); };
+      requestAnimationFrame(function () { requestAnimationFrame(show); });
+      setTimeout(show, 150);   // never leave the page hidden if rAF does not fire
+    });
     var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     if (reduce) { reveal(); return; }
 
